@@ -1,0 +1,19 @@
+[credential]
+	helper = !aws codecommit credential-helper $@
+	UseHttpPath = true
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[core]
+	editor = vim
+[alias]
+	alias = !git config --get-regexp ^alias\\. | sed -e s/^alias\\.// -e s/\\ /\\ =\\ /
+	d = diff
+	s = status -sb
+	acm = !git add . && git commit -m
+	ll = log --stat --abbrev-commit
+	lg = log --color --graph --pretty=format:'%C(blue)%h%Creset %C(bold red)%d%Creset %s %C(cyan)<%an>%Creset %C(green)(%cr)%Creset' --abbrev-commit --date=relative
+	llg = log --color --graph --pretty=format:'%C(blue)%H%Creset %C(bold red)%d%Creset%n%s%n%+b%C(cyan)%an <%ae>%Creset %C(green)%cr (%ci)' --abbrev-commit
+	rollback = reset --soft HEAD~1
