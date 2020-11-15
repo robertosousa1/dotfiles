@@ -110,6 +110,9 @@ brew cask install postman
 echo 'installing devdocs'
 brew cask install devdocs
 
+echo 'installing obs'
+brew cask install obs
+
 echo 'installing adobe acrobat reader dc'
 brew cask install adobe-acrobat-reader
 
