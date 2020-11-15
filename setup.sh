@@ -95,6 +95,9 @@ brew cask install microsoft-outlook
 echo 'installing microsoft remote desktop' 
 echo 'microsoft remote desktop not available for download by brew cask' 
 
+echo 'installing friendly streaming browser' 
+echo 'friendly streaming browser not available for download by brew cask' 
+
 echo 'installing reactotron' 
 brew cask install reactotron
 
