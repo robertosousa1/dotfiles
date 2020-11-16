@@ -95,6 +95,9 @@ brew cask install microsoft-outlook
 echo 'installing microsoft remote desktop' 
 echo 'microsoft remote desktop not available for download by brew cask' 
 
+echo 'installing microsoft to do' 
+echo 'microsoft to do not available for download by brew cask' 
+
 echo 'installing friendly streaming browser' 
 echo 'friendly streaming browser not available for download by brew cask' 
 
@@ -112,6 +115,9 @@ brew cask install devdocs
 
 echo 'installing obs'
 brew cask install obs
+
+echo 'installing notion'
+brew cask install notion
 
 echo 'installing adobe acrobat reader dc'
 brew cask install adobe-acrobat-reader
