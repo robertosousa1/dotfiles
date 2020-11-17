@@ -21,6 +21,9 @@ read git_core_editor_to_vim
 git config --global core.editor $git_core_editor_to_vim
 clear
 
+echo 'installing git remote codecommit' 
+pip install git-remote-codecommit
+
 echo 'installing chrome' 
 brew cask install google-chrome
 
