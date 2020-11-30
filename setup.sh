@@ -104,6 +104,9 @@ echo 'microsoft to do not available for download by brew cask'
 echo 'installing friendly streaming browser' 
 echo 'friendly streaming browser not available for download by brew cask' 
 
+echo 'installing birdid' 
+echo 'birdid desktop not available for download by brew cask' 
+
 echo 'installing reactotron' 
 brew cask install reactotron
 
