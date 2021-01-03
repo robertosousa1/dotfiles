@@ -71,6 +71,9 @@ brew install awsebcli
 echo 'installing aws vpn client' 
 brew cask install aws-vpn-client
 
+echo 'installing azure-cli' 
+brew install azure-cli
+
 echo 'installing mongodb compass' 
 brew cask install mongodb-compass
 
