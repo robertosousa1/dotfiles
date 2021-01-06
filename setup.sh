@@ -4,6 +4,9 @@ echo 'installing homebrew'
 echo 'installing git' 
 brew install git
 
+echo 'installing git-lfs' 
+brew install git-lfs
+
 echo "What name do you want to use in GIT user.name?"
 echo "For example, mine will be \"Roberto Alves\""
 read git_config_user_name
