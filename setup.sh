@@ -256,4 +256,9 @@ brew install jupyter
 
 echo 'installing miniconda'
 brew cask install miniconda
+
+echo 'installing elixir'
+brew install elixir
     
+echo 'installing phoenix'
+mix archive.install hex phx_new 1.5.7
