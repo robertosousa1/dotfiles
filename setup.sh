@@ -1,5 +1,6 @@
 echo 'installing homebrew' 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+export PATH=/opt/homebrew/bin:$PATH
 
 echo 'installing git' 
 brew install git
