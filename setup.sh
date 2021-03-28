@@ -29,40 +29,40 @@ echo 'installing git remote codecommit'
 pip install git-remote-codecommit
 
 echo 'installing chrome' 
-brew cask install google-chrome
+brew install --cask google-chrome
 
 echo 'installing brave'
-brew cask install brave-browser
+brew install --cask brave-browser
 
 echo 'installing spotify' 
-brew cask install spotify
+brew install --cask spotify
 
 echo 'installing whatsapp desktop' 
-brew cask install whatsapp
+brew install --cask whatsapp
 
 echo 'installing skype' 
-brew cask install skype
+brew install --cask skype
 
 echo 'installing discord' 
-brew cask install discord
+brew install --cask discord
 
 echo 'installing telegram' 
-brew cask install telegram
+brew install --cask telegram
 
 echo 'installing slack' 
-brew cask install slack
+brew install --cask slack
 
 echo 'installing clean my mac' 
-brew cask install cleanmymac
+brew install --cask cleanmymac
 
 echo 'installing team viewer' 
-brew cask install teamviewer
+brew install --cask teamviewer
 
 echo 'installing the unarchiver' 
-brew cask install the-unarchiver
+brew install --cask the-unarchiver
 
 echo 'installing docker' 
-brew cask install docker
+brew install --cask docker
 open -a Docker
 
 echo 'installing aws-cli' 
@@ -73,34 +73,34 @@ echo 'installing aws eb cli'
 brew install awsebcli
 
 echo 'installing aws vpn client' 
-brew cask install aws-vpn-client
+brew install --cask aws-vpn-client
 
 echo 'installing azure-cli' 
 brew install azure-cli
 
 echo 'installing mongodb compass' 
-brew cask install mongodb-compass
+brew install --cask mongodb-compass
 
 echo 'installing studio 3t' 
-brew cask install studio-3t
+brew install --cask studio-3t
 
 echo 'installing microsoft teams' 
-brew cask install microsoft-teams
+brew install --cask microsoft-teams
 
 echo 'installing zoom' 
-brew cask install zoom
+brew install --cask zoom
 
 echo 'installing microsoft word' 
-brew cask install microsoft-word
+brew install --cask microsoft-word
 
 echo 'installing microsoft excel' 
-brew cask install microsoft-excel
+brew install --cask microsoft-excel
 
 echo 'installing microsoft powerpoint' 
-brew cask install microsoft-powerpoint
+brew install --cask microsoft-powerpoint
 
 echo 'installing microsoft outlook' 
-brew cask install microsoft-outlook
+brew install --cask microsoft-outlook
 
 echo 'installing microsoft remote desktop' 
 echo 'microsoft remote desktop not available for download by brew cask' 
@@ -115,34 +115,34 @@ echo 'installing birdid'
 echo 'birdid desktop not available for download by brew cask' 
 
 echo 'installing reactotron' 
-brew cask install reactotron
+brew install --cask reactotron
 
 echo 'installing insomnia' 
-brew cask install insomnia
+brew install --cask insomnia
 
 echo 'installing postman' 
-brew cask install postman
+brew install --cask postman
 
 echo 'installing devdocs'
-brew cask install devdocs
+brew install --cask devdocs
 
 echo 'installing obs'
-brew cask install obs
+brew install --cask obs
 
 echo 'installing notion'
-brew cask install notion
+brew install --cask notion
 
 echo 'installing adobe acrobat reader dc'
-brew cask install adobe-acrobat-reader
+brew install --cask adobe-acrobat-reader
 
 echo 'installing responsively app'
-brew cask install responsively
+brew install --cask responsively
 
 echo 'installing draw.io'
-brew cask install drawio
+brew install --cask drawio
 
 echo 'installing visual studio code'
-brew cask install visual-studio-code
+brew install --cask visual-studio-code
 
 echo 'installing extensions'
 code --install-extension dbaeumer.vscode-eslint
@@ -170,7 +170,7 @@ code --install-extension natqe.reload
 
 echo 'installing fira code'
 brew tap homebrew/cask-fonts
-brew cask install font-fira-code
+brew install --cask font-fira-code
 
 echo 'installing zsh'
 brew install zsh
@@ -193,10 +193,10 @@ echo 'add the following lines to .zshrc /
       zplugin light zdharma/fast-syntax-highlighting'
 
 echo 'installing android studio'
-brew cask install android-studio
+brew install --cask android-studio
 
 echo 'installing datagrip'
-brew cask install datagrip
+brew install --cask datagrip
 
 echo 'installing nvm'
 brew install nvm
@@ -230,7 +230,7 @@ brew cleanup -d -v
 brew install cocoapods
 
 echo 'installing jdk8'
-brew cask install adoptopenjdk/openjdk/adoptopenjdk8
+brew install --cask adoptopenjdk/openjdk/adoptopenjdk8
 cd ~/Library/Android/sdk/tools/bin/
 sdkmanager --licenses
 open -a Android\ Studio
@@ -256,7 +256,7 @@ echo 'installing jupyter notebook'
 brew install jupyter
 
 echo 'installing miniconda'
-brew cask install miniconda
+brew install --cask miniconda
 
 echo 'installing elixir'
 brew install elixir
