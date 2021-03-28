@@ -1,6 +1,7 @@
 echo 'installing homebrew' 
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-export PATH=/opt/homebrew/bin:$PATH
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/roberto/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
 echo 'installing git' 
 brew install git
@@ -210,9 +211,9 @@ git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-nvm install 14.15.0
+nvm install 14.16.0
 nvm --version
-nvm alias default 14.15.0
+nvm alias default 14.16.0
 node --version
 npm --version
 
