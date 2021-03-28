@@ -254,7 +254,7 @@ echo 'installing virtualenv'
 pip install virtualenv
 
 echo 'installing jupyter notebook'
-brew install jupyter
+brew install --build-from-source jupyterlab
 
 echo 'installing miniconda'
 brew install --cask miniconda
