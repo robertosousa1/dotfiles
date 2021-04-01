@@ -221,7 +221,7 @@ echo 'installing yarn'
 brew install yarn --ignore-dependencies
 
 echo 'installing global npm packages'
-npm i -g serverless expo-cli autocannon ntl create-react-app json-server react-native-cli npm-check expo-cli code-push-cli 
+npm i -g serverless expo-cli autocannon ntl create-react-app json-server react-native-cli npm-check expo-cli appcenter-cli
 
 echo 'installing watchman'
 brew install watchman
