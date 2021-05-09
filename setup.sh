@@ -171,6 +171,7 @@ code --install-extension jpoissonnier.vscode-styled-components
 code --install-extension pkief.material-icon-theme
 code --install-extension snyk-security.vscode-vuln-cost
 code --install-extension natqe.reload
+code --install-extension hashicorp.terraform
 
 echo 'installing fira code'
 brew tap homebrew/cask-fonts
