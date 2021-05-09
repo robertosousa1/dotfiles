@@ -79,6 +79,9 @@ brew install --cask aws-vpn-client
 echo 'installing azure-cli' 
 brew install azure-cli
 
+echo 'installing terraform' 
+brew install terraform
+
 echo 'installing mongodb compass' 
 brew install --cask mongodb-compass
 
