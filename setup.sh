@@ -268,3 +268,6 @@ brew install elixir
     
 echo 'installing phoenix'
 mix archive.install hex phx_new 1.5.7
+
+echo 'installing soapui'
+brew install soapui --no-quarantine
