@@ -66,6 +66,9 @@ echo 'installing docker'
 brew install --cask docker
 open -a Docker
 
+echo 'installing mysqlworkbench' 
+brew install --cask mysqlworkbench
+
 echo 'installing aws-cli' 
 curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
 sudo installer -pkg AWSCLIV2.pkg -target /
