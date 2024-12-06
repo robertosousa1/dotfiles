@@ -277,3 +277,6 @@ brew install soapui --no-quarantine
 
 echo 'installing devtoys'
 brew install --cask devtoys
+
+echo 'installing chatgpt'
+brew install --cask chatgpt
