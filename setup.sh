@@ -224,6 +224,9 @@ nvm alias default 14.16.0
 node --version
 npm --version
 
+echo 'installing pnpm'
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+
 echo 'installing yarn'
 brew install yarn --ignore-dependencies
 
