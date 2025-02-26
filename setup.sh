@@ -66,6 +66,9 @@ echo 'installing docker'
 brew install --cask docker
 open -a Docker
 
+echo 'installing docker-compose' 
+brew install docker-compose
+
 echo 'installing mysqlworkbench' 
 brew install --cask mysqlworkbench
 
