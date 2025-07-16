@@ -286,3 +286,6 @@ brew install --cask devtoys
 
 echo 'installing chatgpt'
 brew install --cask chatgpt
+
+echo 'installing monitorcontrol'
+brew install --cask monitorcontrol
