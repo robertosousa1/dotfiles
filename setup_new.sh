@@ -258,7 +258,7 @@ install_app() {
           do_install_cmd "$name" "curl -s 'https://awscli.amazonaws.com/AWSCLIV2.pkg' -o /tmp/AWSCLIV2.pkg && sudo installer -pkg /tmp/AWSCLIV2.pkg -target /" ;;
         node-lts)
           do_install_cmd "$name" \
-            "source \"\$HOME/.nvm/nvm.sh\" && nvm install --lts && nvm alias default --lts" ;;
+            "source \"\$HOME/.nvm/nvm.sh\" && nvm install --lts && nvm alias default lts/*" ;;
         nvm)
           do_install_cmd "$name" \
             "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash && \
@@ -383,7 +383,6 @@ CLOUD_ITEMS=(
   "AWS VPN Client|cask|aws-vpn-client"
   "Terraform|brew|terraform"
   "Helm|brew|helm"
-  "kubectl|brew|kubectl"
   "Argo CD CLI|brew|argocd"
 )
 
