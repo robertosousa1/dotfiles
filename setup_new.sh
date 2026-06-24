@@ -16,8 +16,6 @@ MANUAL_ITEMS=(
   "Friendly Streaming Browser — no cask available"
   "Waterllama — App Store"
   "Perplexity — no cask available, download from https://perplexity.ai"
-  "JDK 8 (legacy) — only if needed: brew install --cask adoptopenjdk/openjdk/adoptopenjdk8"
-  "Miniconda — only if needed: brew install --cask miniconda"
   "Zinit / zsh plugins — install manually as preferred"
   "Dracula theme for Terminal.app — git clone https://github.com/dracula/terminal-app.git"
 )
