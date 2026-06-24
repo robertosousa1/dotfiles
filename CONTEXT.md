@@ -58,6 +58,20 @@ script de instalação, para evitar instalar coisas que não são mais usadas.
 
 ## Decisões tomadas
 
+### CocoaPods
+- Instalado via **`brew install cocoapods`**, não via `gem install cocoapods`.
+- Motivo: o Ruby do sistema no macOS Sequoia é a versão 2.6, que é antiga demais
+  para a dependência `ffi` exigida pelo CocoaPods (requer Ruby >= 3.0). O
+  `brew install` usa o Ruby interno do Homebrew, evitando esse conflito.
+- A doc oficial do CocoaPods e do React Native recomendam `gem install`, mas
+  essa orientação está desatualizada para macOS moderno com Apple Silicon.
+- Risco aceito: o Homebrew pode demorar a atualizar o CocoaPods para versões
+  mais novas, e em projetos com restrição de versão no `Podfile` pode haver
+  incompatibilidade — improvável na prática.
+- Alternativa descartada: instalar `rbenv` + Ruby 3.x antes do CocoaPods
+  seguiria a doc oficial, mas `rbenv global` substitui o Ruby padrão do sistema
+  podendo impactar ferramentas nativas do macOS que dependem do Ruby 2.6.
+
 ### Estratégia geral
 - **Homebrew é preferido sobre Mac App Store** sempre que existir cask
   equivalente — facilita automação (`brew bundle`/scripts) e atualização

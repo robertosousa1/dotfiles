@@ -240,7 +240,7 @@ app_is_installed() {
         node-lts)     [ -s "$HOME/.nvm/nvm.sh" ] && source "$HOME/.nvm/nvm.sh" && nvm which default &>/dev/null ;;
         virtualenv)   is_cmd virtualenv ;;
         font-fira-code) is_cask_installed "font-fira-code" ;;
-        cocoapods)    is_cmd pod ;;
+        cocoapods)    is_formula_installed "cocoapods" ;;
         omz)          [ -d "$HOME/.oh-my-zsh" ] ;;
       esac
       ;;
@@ -258,7 +258,7 @@ install_app() {
           do_install_cmd "$name" "curl -s 'https://awscli.amazonaws.com/AWSCLIV2.pkg' -o /tmp/AWSCLIV2.pkg && sudo installer -pkg /tmp/AWSCLIV2.pkg -target /" ;;
         node-lts)
           do_install_cmd "$name" \
-            "source \"\$HOME/.nvm/nvm.sh\" && nvm install --lts && nvm alias default lts/*" ;;
+            "source \"\$HOME/.nvm/nvm.sh\" && nvm install --lts && nvm alias default \$(node --version)" ;;
         nvm)
           do_install_cmd "$name" \
             "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash && \
@@ -269,12 +269,12 @@ install_app() {
         font-fira-code)
           do_install_cask "$name" "font-fira-code" ;;
         cocoapods)
-          do_install_cmd "$name" "sudo gem install cocoapods" ;;
+          do_install_brew "$name" "cocoapods" ;;
         omz)
           do_install_cmd "$name" \
             "sh -c \"\$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" '' --unattended && \
              bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh)\" && \
-             sed -i '' 's/ZSH_THEME=\"robbyrussell\"/ZSH_THEME=\"spaceship\"/' ~/.zshrc && \
+             sed -i '' 's/ZSH_THEME=\"robbyrussell\"/ZSH_THEME=\"\"/' ~/.zshrc && \
              cat >> ~/.zshrc << 'EOF'
 
 # zinit plugins
@@ -370,7 +370,7 @@ NODE_ITEMS=(
   "nvm|special|nvm"
   "Node.js LTS (via nvm)|special|node-lts"
   "Watchman|brew|watchman"
-  "CocoaPods|special|cocoapods"
+  "CocoaPods|brew|cocoapods"
   "Reactotron|cask|reactotron"
 )
 
@@ -492,16 +492,10 @@ show_npm() {
   echo ""
   _PROGRESS_CURRENT=0
   _PROGRESS_TOTAL=${#to_install[@]}
-  _draw_progress "$_PROGRESS_CURRENT" "$_PROGRESS_TOTAL"
-  gum style --foreground 240 "  ⠸ Installing npm packages..."
-  if npm i -g "${to_install[@]}" >> "$_INSTALL_LOG" 2>&1; then
-    gum style --foreground 46 "  ✅ npm packages installed"
-    INSTALLED_ITEMS+=("npm: ${to_install[*]}")
-  else
-    gum style --foreground 196 "  ❌ npm packages failed (see $_INSTALL_LOG)"
-    FAILED_ITEMS+=("npm packages")
-  fi
-  _PROGRESS_CURRENT=${#to_install[@]}
+
+  for pkg in "${to_install[@]}"; do
+    _run_install "$pkg" npm install -g "$pkg"
+  done
 
   echo ""
   gum style --foreground 212 "Done. Press any key to return to the menu."

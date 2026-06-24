@@ -61,6 +61,14 @@ A lista completa está no próprio script, organizada em seções.
 > `.gitconfig`, `.zshrc` e `vscode.settings.json` ainda estão em revisão e
 > serão documentados em uma versão futura.
 
+## Observações técnicas
+
+**CocoaPods** é instalado via `brew install cocoapods` em vez do método oficial
+(`gem install cocoapods`). O motivo é que o Ruby incluído no macOS Sequoia (2.6)
+é antigo demais para as dependências atuais do CocoaPods, que exigem Ruby >= 3.0.
+O Homebrew usa seu próprio Ruby internamente, contornando esse problema sem
+interferir no Ruby do sistema. Ver detalhes em [CONTEXT.md](CONTEXT.md).
+
 ## Personalizando
 
 Para adaptar a lista de apps às suas necessidades, edite as seções dentro de
