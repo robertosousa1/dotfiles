@@ -7,7 +7,6 @@
 #   chmod +x setup_new.sh
 #   ./setup_new.sh
 
-set -e
 
 MANUAL_ITEMS=()
 SKIPPED_ITEMS=()
