@@ -1,472 +1,494 @@
 #!/bin/bash
 #
-# Script de setup do Mac novo
-# Exibe todos os itens de uma vez para seleção, depois instala o que foi escolhido.
+# Mac Setup Script
+# Interactive menu to install apps, npm packages and VS Code extensions.
 #
-# Uso:
+# Usage:
 #   chmod +x setup_new.sh
 #   ./setup_new.sh
 
-
-MANUAL_ITEMS=()
-SKIPPED_ITEMS=()
 FAILED_ITEMS=()
 INSTALLED_ITEMS=()
+MANUAL_ITEMS=(
+  "Microsoft To Do — App Store"
+  "TestFlight / Transporter — App Store"
+  "Xcode — App Store (10GB+, download directly)"
+  "Friendly Streaming Browser — no cask available"
+  "Waterllama — App Store"
+  "Node via nvm — run: nvm install --lts && nvm alias default --lts"
+  "JDK 8 (legacy) — only if needed: brew install --cask adoptopenjdk/openjdk/adoptopenjdk8"
+  "Miniconda — only if needed: brew install --cask miniconda"
+  "Zinit / zsh plugins — install manually as preferred"
+  "Dracula theme for Terminal.app — git clone https://github.com/dracula/terminal-app.git"
+)
 
-# ----------------------------------------
-# Homebrew (pré-requisito obrigatório)
-# ----------------------------------------
+# ─────────────────────────────────────────
+# Helpers
+# ─────────────────────────────────────────
 
-if ! command -v brew &>/dev/null; then
-  echo "Homebrew não encontrado. Instalando..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-else
-  echo "✓ Homebrew já instalado."
-fi
+is_cask_installed()    { brew list --cask    2>/dev/null | grep -qx "$1"; }
+is_formula_installed() { brew list --formula 2>/dev/null | grep -qx "$1"; }
+is_cmd()               { command -v "$1" &>/dev/null; }
+is_vscode_ext()        { code --list-extensions 2>/dev/null | grep -qix "$1"; }
+is_npm_pkg()           { npm list -g --depth=0 2>/dev/null | grep -q "$1"; }
 
-# ----------------------------------------
-# gum (pré-requisito para a UI)
-# ----------------------------------------
+do_install_cask() {
+  local name="$1" cask="$2"
+  gum spin --spinner dot --title "Installing $name..." -- brew install --cask "$cask" \
+    && INSTALLED_ITEMS+=("$name") || FAILED_ITEMS+=("$name")
+}
 
-if ! command -v gum &>/dev/null; then
-  echo "Instalando gum (UI interativa)..."
-  brew install gum
-fi
+do_install_brew() {
+  local name="$1" formula="$2"
+  gum spin --spinner dot --title "Installing $name..." -- brew install "$formula" \
+    && INSTALLED_ITEMS+=("$name") || FAILED_ITEMS+=("$name")
+}
 
-# ----------------------------------------
-# Seleção de itens
-# ----------------------------------------
+do_install_cmd() {
+  local name="$1" cmd="$2"
+  gum spin --spinner dot --title "Installing $name..." -- bash -c "$cmd" \
+    && INSTALLED_ITEMS+=("$name") || FAILED_ITEMS+=("$name")
+}
 
-echo ""
+header() {
+  clear
+  gum style \
+    --foreground 212 --border-foreground 212 --border double \
+    --align center --width 50 --margin "1 2" --padding "1 4" \
+    "Mac Setup" "$1"
+}
+
+# ─────────────────────────────────────────
+# Prerequisites
+# ─────────────────────────────────────────
+
+clear
 gum style \
   --foreground 212 --border-foreground 212 --border double \
   --align center --width 50 --margin "1 2" --padding "1 4" \
-  "Setup do Mac" "Selecione o que instalar"
+  "Mac Setup" "Checking prerequisites..." 2>/dev/null \
+|| echo "=== Mac Setup — Checking prerequisites ==="
 
-echo ""
-gum style --foreground 240 "  ↑↓ navegar   espaço selecionar   enter confirmar"
-echo ""
-
-ALL_ITEMS=(
-  # Git
-  "Git"
-  "Git LFS"
-  "GitHub CLI (gh)"
-  "Configurar nome/email/editor do Git"
-  # Navegadores
-  "Google Chrome"
-  "Brave Browser"
-  # Comunicação
-  "WhatsApp"
-  "Slack"
-  "Discord"
-  "Zoom"
-  "Microsoft Teams"
-  # Produtividade
-  "Microsoft Word"
-  "Microsoft Excel"
-  "Microsoft PowerPoint"
-  "Microsoft Outlook"
-  "OneDrive"
-  "Notion"
-  "Obsidian"
-  # IA / Assistentes
-  "Claude"
-  "ChatGPT"
-  "Perplexity"
-  # Editores e IDEs
-  "Visual Studio Code"
-  "Android Studio"
-  "DataGrip"
-  # Ferramentas de desenvolvimento
-  "Docker Desktop"
-  "docker-compose"
-  "Postman"
-  "Insomnia"
-  "MongoDB Compass"
-  "MySQL Workbench"
-  "DevToys"
-  "DevDocs"
-  "Reactotron"
-  "draw.io"
-  "ResponsivelyApp"
-  "OBS"
-  "The Unarchiver"
-  "CleanMyMac"
-  "MonitorControl"
-  "AWS VPN Client"
-  # CLIs de Cloud / Infra
-  "AWS CLI v2"
-  "AWS EB CLI"
-  "Azure CLI"
-  "Terraform"
-  "Helm"
-  "kubectl"
-  "Argo CD CLI"
-  "Watchman"
-  # Linguagens / Runtimes
-  "nvm"
-  "yarn"
-  "pnpm"
-  "OpenJDK 17"
-  "CocoaPods"
-  "virtualenv (pip)"
-  # Extras
-  "Pacotes globais npm"
-  "Fira Code (fonte)"
-  "Oh My Zsh + tema Spaceship"
-  "Extensões do VS Code"
-)
-
-SELECTED=$(gum choose --no-limit --height=40 "${ALL_ITEMS[@]}")
-
-if [ -z "$SELECTED" ]; then
-  echo ""
-  gum style --foreground 214 "Nenhum item selecionado. Saindo."
-  exit 0
+# Homebrew
+if is_cmd brew; then
+  echo "✅ Homebrew — already installed"
+else
+  echo "⚠️  Homebrew is not installed."
+  if gum confirm "Install Homebrew now?" 2>/dev/null || { echo -n "Install Homebrew? [y/N] "; read -r r && [[ "$r" =~ ^[yY] ]]; }; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+    echo "✅ Homebrew installed."
+  else
+    echo "Homebrew is required. Exiting."
+    exit 1
+  fi
 fi
 
-echo ""
-gum style --foreground 212 "Iniciando instalação..."
-echo ""
+# gum
+if is_cmd gum; then
+  echo "✅ gum — already installed"
+else
+  echo "⚠️  gum (interactive UI) is not installed."
+  echo -n "Install gum via Homebrew? [y/N] "
+  read -r r
+  if [[ "$r" =~ ^[yY] ]]; then
+    brew install gum
+    echo "✅ gum installed."
+  else
+    echo "gum is required for the interactive menu. Exiting."
+    exit 1
+  fi
+fi
 
-# ----------------------------------------
-# Instalar cada item selecionado
-# ----------------------------------------
+sleep 1
 
-already_installed_brew() {
-  brew list --formula 2>/dev/null | grep -qx "$1" || \
-  brew list --cask   2>/dev/null | grep -qx "$1"
+# ─────────────────────────────────────────
+# Applications
+# ─────────────────────────────────────────
+
+# Format: "Display Name|type(cask/brew/special)|identifier"
+APPS_ITEMS=(
+  # Git
+  "Git|brew|git"
+  "Git LFS|brew|git-lfs"
+  "GitHub CLI|brew|gh"
+  # Browsers
+  "Google Chrome|cask|google-chrome"
+  "Brave Browser|cask|brave-browser"
+  # Communication
+  "WhatsApp|cask|whatsapp"
+  "Slack|cask|slack"
+  "Discord|cask|discord"
+  "Zoom|cask|zoom"
+  "Microsoft Teams|cask|microsoft-teams"
+  # Productivity
+  "Microsoft Word|cask|microsoft-word"
+  "Microsoft Excel|cask|microsoft-excel"
+  "Microsoft PowerPoint|cask|microsoft-powerpoint"
+  "Microsoft Outlook|cask|microsoft-outlook"
+  "OneDrive|cask|onedrive"
+  "Notion|cask|notion"
+  "Obsidian|cask|obsidian"
+  # AI / Assistants
+  "Claude|cask|claude"
+  "ChatGPT|cask|chatgpt"
+  "Perplexity|cask|perplexity"
+  # Editors & IDEs
+  "Visual Studio Code|cask|visual-studio-code"
+  "Android Studio|cask|android-studio"
+  "DataGrip|cask|datagrip"
+  # Dev Tools
+  "Docker Desktop|cask|docker"
+  "docker-compose|brew|docker-compose"
+  "Postman|cask|postman"
+  "Insomnia|cask|insomnia"
+  "MongoDB Compass|cask|mongodb-compass"
+  "MySQL Workbench|cask|mysqlworkbench"
+  "DevToys|cask|devtoys"
+  "DevDocs|cask|devdocs"
+  "Reactotron|cask|reactotron"
+  "draw.io|cask|drawio"
+  "ResponsivelyApp|cask|responsively"
+  "OBS|cask|obs"
+  "The Unarchiver|cask|the-unarchiver"
+  "CleanMyMac|cask|cleanmymac"
+  "MonitorControl|cask|monitorcontrol"
+  "AWS VPN Client|cask|aws-vpn-client"
+  # Cloud / Infra CLIs
+  "AWS CLI v2|special|aws"
+  "AWS EB CLI|brew|awsebcli"
+  "Azure CLI|brew|azure-cli"
+  "Terraform|brew|terraform"
+  "Helm|brew|helm"
+  "kubectl|brew|kubectl"
+  "Argo CD CLI|brew|argocd"
+  "Watchman|brew|watchman"
+  # Runtimes
+  "nvm|brew|nvm"
+  "yarn|brew|yarn"
+  "pnpm|special|pnpm"
+  "OpenJDK 17|brew|openjdk@17"
+  "CocoaPods|brew|cocoapods"
+  "virtualenv|special|virtualenv"
+  # Font
+  "Fira Code (font)|special|font-fira-code"
+  # Terminal
+  "Oh My Zsh + Spaceship theme|special|omz"
+)
+
+app_is_installed() {
+  local type="$2" id="$3"
+  case "$type" in
+    cask)    is_cask_installed "$id" ;;
+    brew)    is_formula_installed "$id" || is_cmd "$id" ;;
+    special)
+      case "$id" in
+        aws)          is_cmd aws ;;
+        pnpm)         is_cmd pnpm ;;
+        virtualenv)   is_cmd virtualenv ;;
+        font-fira-code) is_cask_installed "font-fira-code" ;;
+        omz)          [ -d "$HOME/.oh-my-zsh" ] ;;
+      esac
+      ;;
+  esac
 }
 
-install() {
-  local name="$1"
-  local cmd="$2"
-  local check="$3"   # comando opcional para checar existência (ex: "command -v git")
+install_app() {
+  local name="$1" type="$2" id="$3"
+  case "$type" in
+    cask) do_install_cask "$name" "$id" ;;
+    brew) do_install_brew "$name" "$id" ;;
+    special)
+      case "$id" in
+        aws)
+          do_install_cmd "$name" "curl -s 'https://awscli.amazonaws.com/AWSCLIV2.pkg' -o /tmp/AWSCLIV2.pkg && sudo installer -pkg /tmp/AWSCLIV2.pkg -target /" ;;
+        pnpm)
+          do_install_cmd "$name" "curl -fsSL https://get.pnpm.io/install.sh | sh -" ;;
+        virtualenv)
+          do_install_cmd "$name" "pip3 install virtualenv" ;;
+        font-fira-code)
+          do_install_cmd "$name" "brew tap homebrew/cask-fonts && brew install --cask font-fira-code" ;;
+        omz)
+          do_install_cmd "$name" \
+            "sh -c \"\$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" '' --unattended && \
+             git clone https://github.com/denysdovhan/spaceship-prompt.git \"\${ZSH_CUSTOM:-\$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt\" --depth=1 && \
+             ln -sf \"\${ZSH_CUSTOM:-\$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt/spaceship.zsh-theme\" \"\${ZSH_CUSTOM:-\$HOME/.oh-my-zsh/custom}/themes/spaceship.zsh-theme\"" ;;
+      esac
+      ;;
+  esac
+}
 
-  if [ -n "$check" ] && eval "$check" &>/dev/null; then
-    gum style --foreground 240 "  ↩ $name já instalado, pulando."
-    INSTALLED_ITEMS+=("$name (já existia)")
+show_apps() {
+  header "Applications"
+
+  local installed_labels=()
+  local available_labels=()
+  local available_entries=()
+
+  for entry in "${APPS_ITEMS[@]}"; do
+    IFS='|' read -r name type id <<< "$entry"
+    if app_is_installed "$name" "$type" "$id"; then
+      installed_labels+=("$name")
+    else
+      available_labels+=("$name")
+      available_entries+=("$entry")
+    fi
+  done
+
+  if [ ${#installed_labels[@]} -gt 0 ]; then
+    gum style --foreground 46 "Already installed:"
+    for label in "${installed_labels[@]}"; do
+      echo "  ✅ $label"
+    done
+    echo ""
+  fi
+
+  if [ ${#available_labels[@]} -eq 0 ]; then
+    gum style --foreground 46 "All applications are already installed!"
+    sleep 2
     return
   fi
 
-  gum spin --spinner dot --title "Instalando $name..." -- bash -c "$cmd" \
-    && INSTALLED_ITEMS+=("$name") \
-    || FAILED_ITEMS+=("$name")
-}
+  gum style --foreground 240 "Select to install (space to toggle, enter to confirm, ctrl+c to go back):"
+  echo ""
 
-install_brew() {
-  local name="$1"
-  local formula="$2"
-  local check="${3:-command -v $formula}"
-  if already_installed_brew "$formula"; then
-    gum style --foreground 240 "  ↩ $name já instalado, pulando."
-    INSTALLED_ITEMS+=("$name (já existia)")
-  else
-    gum spin --spinner dot --title "Instalando $name..." -- brew install "$formula" \
-      && INSTALLED_ITEMS+=("$name") \
-      || FAILED_ITEMS+=("$name")
-  fi
-}
+  local selected
+  selected=$(gum choose --no-limit --height=20 "${available_labels[@]}") || return
 
-install_cask() {
-  local name="$1"
-  local cask="$2"
-  if already_installed_brew "$cask"; then
-    gum style --foreground 240 "  ↩ $name já instalado, pulando."
-    INSTALLED_ITEMS+=("$name (já existia)")
-  else
-    gum spin --spinner dot --title "Instalando $name..." -- brew install --cask "$cask" \
-      && INSTALLED_ITEMS+=("$name") \
-      || FAILED_ITEMS+=("$name")
-  fi
-}
+  [ -z "$selected" ] && return
 
-while IFS= read -r item; do
-  case "$item" in
-
-    "Git")
-      install_brew "Git" "git" ;;
-
-    "Git LFS")
-      install_brew "Git LFS" "git-lfs" ;;
-
-    "GitHub CLI (gh)")
-      install_brew "GitHub CLI" "gh" ;;
-
-    "Configurar nome/email/editor do Git")
-      echo ""
-      git_name=$(gum input --placeholder "Nome (git config user.name)")
-      git config --global user.name "$git_name"
-      git_email=$(gum input --placeholder "Email (git config user.email)")
-      git config --global user.email "$git_email"
-      git_editor=$(gum input --placeholder "Editor padrão (ex: vim, code --wait)")
-      git config --global core.editor "$git_editor"
-      INSTALLED_ITEMS+=("Configurar Git")
-      echo ""
-      ;;
-
-    "Google Chrome")
-      install_cask "Google Chrome" "google-chrome" ;;
-
-    "Brave Browser")
-      install_cask "Brave Browser" "brave-browser" ;;
-
-    "WhatsApp")
-      install_cask "WhatsApp" "whatsapp" ;;
-
-    "Slack")
-      install_cask "Slack" "slack" ;;
-
-    "Discord")
-      install_cask "Discord" "discord" ;;
-
-    "Zoom")
-      install_cask "Zoom" "zoom" ;;
-
-    "Microsoft Teams")
-      install_cask "Microsoft Teams" "microsoft-teams" ;;
-
-    "Microsoft Word")
-      install_cask "Microsoft Word" "microsoft-word" ;;
-
-    "Microsoft Excel")
-      install_cask "Microsoft Excel" "microsoft-excel" ;;
-
-    "Microsoft PowerPoint")
-      install_cask "Microsoft PowerPoint" "microsoft-powerpoint" ;;
-
-    "Microsoft Outlook")
-      install_cask "Microsoft Outlook" "microsoft-outlook" ;;
-
-    "OneDrive")
-      install_cask "OneDrive" "onedrive" ;;
-
-    "Notion")
-      install_cask "Notion" "notion" ;;
-
-    "Obsidian")
-      install_cask "Obsidian" "obsidian" ;;
-
-    "Claude")
-      install_cask "Claude" "claude" ;;
-
-    "ChatGPT")
-      install_cask "ChatGPT" "chatgpt" ;;
-
-    "Perplexity")
-      install_cask "Perplexity" "perplexity" ;;
-
-    "Visual Studio Code")
-      install_cask "Visual Studio Code" "visual-studio-code" ;;
-
-    "Android Studio")
-      install_cask "Android Studio" "android-studio" ;;
-
-    "DataGrip")
-      install_cask "DataGrip" "datagrip" ;;
-
-    "Docker Desktop")
-      install_cask "Docker Desktop" "docker" ;;
-
-    "docker-compose")
-      install_brew "docker-compose" "docker-compose" ;;
-
-    "Postman")
-      install_cask "Postman" "postman" ;;
-
-    "Insomnia")
-      install_cask "Insomnia" "insomnia" ;;
-
-    "MongoDB Compass")
-      install_cask "MongoDB Compass" "mongodb-compass" ;;
-
-    "MySQL Workbench")
-      install_cask "MySQL Workbench" "mysqlworkbench" ;;
-
-    "DevToys")
-      install_cask "DevToys" "devtoys" ;;
-
-    "DevDocs")
-      install_cask "DevDocs" "devdocs" ;;
-
-    "Reactotron")
-      install_cask "Reactotron" "reactotron" ;;
-
-    "draw.io")
-      install_cask "draw.io" "drawio" ;;
-
-    "ResponsivelyApp")
-      install_cask "ResponsivelyApp" "responsively" ;;
-
-    "OBS")
-      install_cask "OBS" "obs" ;;
-
-    "The Unarchiver")
-      install_cask "The Unarchiver" "the-unarchiver" ;;
-
-    "CleanMyMac")
-      install_cask "CleanMyMac" "cleanmymac" ;;
-
-    "MonitorControl")
-      install_cask "MonitorControl" "monitorcontrol" ;;
-
-    "AWS VPN Client")
-      install_cask "AWS VPN Client" "aws-vpn-client" ;;
-
-    "AWS CLI v2")
-      install "AWS CLI v2" \
-        "curl -s 'https://awscli.amazonaws.com/AWSCLIV2.pkg' -o /tmp/AWSCLIV2.pkg && sudo installer -pkg /tmp/AWSCLIV2.pkg -target /" \
-        "command -v aws" ;;
-
-    "AWS EB CLI")
-      install_brew "AWS EB CLI" "awsebcli" ;;
-
-    "Azure CLI")
-      install_brew "Azure CLI" "azure-cli" ;;
-
-    "Terraform")
-      install_brew "Terraform" "terraform" ;;
-
-    "Helm")
-      install_brew "Helm" "helm" ;;
-
-    "kubectl")
-      install_brew "kubectl" "kubectl" ;;
-
-    "Argo CD CLI")
-      install_brew "Argo CD CLI" "argocd" ;;
-
-    "Watchman")
-      install_brew "Watchman" "watchman" ;;
-
-    "nvm")
-      install_brew "nvm" "nvm" ;;
-
-    "yarn")
-      install_brew "yarn" "yarn" ;;
-
-    "pnpm")
-      install "pnpm" "curl -fsSL https://get.pnpm.io/install.sh | sh -" "command -v pnpm" ;;
-
-    "OpenJDK 17")
-      install_brew "OpenJDK 17" "openjdk@17" ;;
-
-    "CocoaPods")
-      install_brew "CocoaPods" "cocoapods" ;;
-
-    "virtualenv (pip)")
-      install "virtualenv" "pip3 install virtualenv" "command -v virtualenv" ;;
-
-    "Pacotes globais npm")
-      install "Pacotes globais npm" \
-        "npm i -g @anthropic-ai/claude-code @fission-ai/openspec autocannon eas-cli expo-cli json-server npm-check ntl serverless" \
-        "command -v serverless" ;;
-
-    "Fira Code (fonte)")
-      install "Fira Code" \
-        "brew tap homebrew/cask-fonts && brew install --cask font-fira-code" \
-        "already_installed_brew font-fira-code" ;;
-
-    "Oh My Zsh + tema Spaceship")
-      install "Oh My Zsh + Spaceship" \
-        "sh -c \"\$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" '' --unattended && \
-         git clone https://github.com/denysdovhan/spaceship-prompt.git \"\${ZSH_CUSTOM:-\$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt\" --depth=1 && \
-         ln -sf \"\${ZSH_CUSTOM:-\$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt/spaceship.zsh-theme\" \"\${ZSH_CUSTOM:-\$HOME/.oh-my-zsh/custom}/themes/spaceship.zsh-theme\""
-      ;;
-
-    "Extensões do VS Code")
-      if command -v code &>/dev/null; then
-        EXTENSIONS=(
-          anthropic.claude-code
-          bierner.markdown-mermaid
-          christian-kohler.path-intellisense
-          dbaeumer.vscode-eslint
-          dracula-theme.theme-dracula
-          eamodio.gitlens
-          editorconfig.editorconfig
-          esbenp.prettier-vscode
-          foxundermoon.shell-format
-          hashicorp.terraform
-          jpoissonnier.vscode-styled-components
-          mikestead.dotenv
-          ms-azuretools.vscode-docker
-          naumovs.color-highlight
-          openai.chatgpt
-          pkief.material-icon-theme
-          prisma.prisma
-          ritwickdey.liveserver
-          snyk-security.vscode-vuln-cost
-          wix.vscode-import-cost
-          yzhang.markdown-all-in-one
-        )
-        INSTALLED_EXTS=$(code --list-extensions 2>/dev/null)
-        for ext in "${EXTENSIONS[@]}"; do
-          if echo "$INSTALLED_EXTS" | grep -qix "$ext"; then
-            gum style --foreground 240 "  ↩ $ext já instalado, pulando."
-          else
-            gum spin --spinner dot --title "VS Code: $ext..." -- code --install-extension "$ext" \
-              || FAILED_ITEMS+=("VS Code ext: $ext")
-          fi
-        done
-        INSTALLED_ITEMS+=("Extensões do VS Code")
-      else
-        FAILED_ITEMS+=("Extensões do VS Code — VS Code não encontrado, instale primeiro")
+  echo ""
+  while IFS= read -r sel; do
+    for entry in "${available_entries[@]}"; do
+      IFS='|' read -r name type id <<< "$entry"
+      if [ "$name" = "$sel" ]; then
+        install_app "$name" "$type" "$id"
+        break
       fi
-      ;;
+    done
+  done <<< "$selected"
 
-  esac
-done <<< "$SELECTED"
+  echo ""
+  gum style --foreground 212 "Done. Press any key to return to the menu."
+  read -r -n1
+}
 
-# Itens sempre manuais
-MANUAL_ITEMS+=(
-  "Microsoft To Do — App Store"
-  "TestFlight / Transporter — App Store"
-  "Xcode — App Store (10GB+, baixar direto)"
-  "Friendly Streaming Browser — sem cask, baixar direto"
-  "Waterllama — App Store"
-  "Node via nvm — rode: nvm install --lts && nvm alias default --lts"
-  "JDK 8 (legado) — se precisar: brew install --cask adoptopenjdk/openjdk/adoptopenjdk8"
-  "Miniconda — se precisar: brew install --cask miniconda"
-  "Zinit / plugins zsh — instalar manualmente conforme preferência"
-  "Tema Dracula para Terminal.app — git clone https://github.com/dracula/terminal-app.git"
+# ─────────────────────────────────────────
+# Global NPM Packages
+# ─────────────────────────────────────────
+
+NPM_ITEMS=(
+  "@anthropic-ai/claude-code"
+  "@fission-ai/openspec"
+  "autocannon"
+  "eas-cli"
+  "expo-cli"
+  "json-server"
+  "npm-check"
+  "ntl"
+  "serverless"
 )
 
-# ----------------------------------------
-# Resumo final
-# ----------------------------------------
+show_npm() {
+  header "Global NPM Packages"
 
-echo ""
-gum style \
-  --foreground 212 --border-foreground 212 --border double \
-  --align center --width 50 --margin "1 2" --padding "1 2" \
-  "Resumo da instalação"
+  if ! is_cmd npm; then
+    gum style --foreground 196 "npm is not installed. Install Node via nvm first."
+    sleep 3
+    return
+  fi
 
-if [ ${#INSTALLED_ITEMS[@]} -gt 0 ]; then
+  local installed_labels=()
+  local available_labels=()
+
+  for pkg in "${NPM_ITEMS[@]}"; do
+    if is_npm_pkg "$pkg"; then
+      installed_labels+=("$pkg")
+    else
+      available_labels+=("$pkg")
+    fi
+  done
+
+  if [ ${#installed_labels[@]} -gt 0 ]; then
+    gum style --foreground 46 "Already installed:"
+    for label in "${installed_labels[@]}"; do
+      echo "  ✅ $label"
+    done
+    echo ""
+  fi
+
+  if [ ${#available_labels[@]} -eq 0 ]; then
+    gum style --foreground 46 "All npm packages are already installed!"
+    sleep 2
+    return
+  fi
+
+  gum style --foreground 240 "Select to install (space to toggle, enter to confirm, ctrl+c to go back):"
   echo ""
-  gum style --foreground 46 "✅ Instalados:"
-  for item in "${INSTALLED_ITEMS[@]}"; do
+
+  local selected
+  selected=$(gum choose --no-limit --height=20 "${available_labels[@]}") || return
+
+  [ -z "$selected" ] && return
+
+  local to_install=()
+  while IFS= read -r pkg; do
+    to_install+=("$pkg")
+  done <<< "$selected"
+
+  echo ""
+  gum spin --spinner dot --title "Installing npm packages..." -- \
+    npm i -g "${to_install[@]}" \
+    && INSTALLED_ITEMS+=("npm: ${to_install[*]}") \
+    || FAILED_ITEMS+=("npm packages")
+
+  echo ""
+  gum style --foreground 212 "Done. Press any key to return to the menu."
+  read -r -n1
+}
+
+# ─────────────────────────────────────────
+# VS Code Extensions
+# ─────────────────────────────────────────
+
+VSCODE_ITEMS=(
+  "anthropic.claude-code"
+  "bierner.markdown-mermaid"
+  "christian-kohler.path-intellisense"
+  "dbaeumer.vscode-eslint"
+  "dracula-theme.theme-dracula"
+  "eamodio.gitlens"
+  "editorconfig.editorconfig"
+  "esbenp.prettier-vscode"
+  "foxundermoon.shell-format"
+  "hashicorp.terraform"
+  "jpoissonnier.vscode-styled-components"
+  "mikestead.dotenv"
+  "ms-azuretools.vscode-docker"
+  "naumovs.color-highlight"
+  "openai.chatgpt"
+  "pkief.material-icon-theme"
+  "prisma.prisma"
+  "ritwickdey.liveserver"
+  "snyk-security.vscode-vuln-cost"
+  "wix.vscode-import-cost"
+  "yzhang.markdown-all-in-one"
+)
+
+show_vscode() {
+  header "VS Code Extensions"
+
+  if ! is_cmd code; then
+    gum style --foreground 196 "VS Code is not installed. Install it first via Applications."
+    sleep 3
+    return
+  fi
+
+  local installed_labels=()
+  local available_labels=()
+
+  for ext in "${VSCODE_ITEMS[@]}"; do
+    if is_vscode_ext "$ext"; then
+      installed_labels+=("$ext")
+    else
+      available_labels+=("$ext")
+    fi
+  done
+
+  if [ ${#installed_labels[@]} -gt 0 ]; then
+    gum style --foreground 46 "Already installed:"
+    for label in "${installed_labels[@]}"; do
+      echo "  ✅ $label"
+    done
+    echo ""
+  fi
+
+  if [ ${#available_labels[@]} -eq 0 ]; then
+    gum style --foreground 46 "All extensions are already installed!"
+    sleep 2
+    return
+  fi
+
+  gum style --foreground 240 "Select to install (space to toggle, enter to confirm, ctrl+c to go back):"
+  echo ""
+
+  local selected
+  selected=$(gum choose --no-limit --height=20 "${available_labels[@]}") || return
+
+  [ -z "$selected" ] && return
+
+  echo ""
+  while IFS= read -r ext; do
+    gum spin --spinner dot --title "VS Code: $ext..." -- code --install-extension "$ext" \
+      && INSTALLED_ITEMS+=("vscode: $ext") \
+      || FAILED_ITEMS+=("vscode: $ext")
+  done <<< "$selected"
+
+  echo ""
+  gum style --foreground 212 "Done. Press any key to return to the menu."
+  read -r -n1
+}
+
+# ─────────────────────────────────────────
+# Summary
+# ─────────────────────────────────────────
+
+show_summary() {
+  header "Summary"
+
+  if [ ${#INSTALLED_ITEMS[@]} -gt 0 ]; then
+    echo ""
+    gum style --foreground 46 "✅ Installed:"
+    for item in "${INSTALLED_ITEMS[@]}"; do
+      echo "   • $item"
+    done
+  fi
+
+  if [ ${#FAILED_ITEMS[@]} -gt 0 ]; then
+    echo ""
+    gum style --foreground 196 "❌ Failed (check manually):"
+    for item in "${FAILED_ITEMS[@]}"; do
+      echo "   • $item"
+    done
+  fi
+
+  echo ""
+  gum style --foreground 214 "📋 Requires manual installation:"
+  for item in "${MANUAL_ITEMS[@]}"; do
     echo "   • $item"
   done
-fi
 
-if [ ${#FAILED_ITEMS[@]} -gt 0 ]; then
   echo ""
-  gum style --foreground 196 "❌ Falharam (verificar manualmente):"
-  for item in "${FAILED_ITEMS[@]}"; do
-    echo "   • $item"
-  done
-fi
+  gum style --foreground 240 "Tip: for App Store apps, use 'brew install mas' and 'mas install <id>'."
+  echo ""
+}
 
-echo ""
-gum style --foreground 214 "📋 Instalação manual necessária:"
-for item in "${MANUAL_ITEMS[@]}"; do
-  echo "   • $item"
+# ─────────────────────────────────────────
+# Main menu loop
+# ─────────────────────────────────────────
+
+while true; do
+  header "Main Menu"
+
+  CHOICE=$(gum choose \
+    "Applications" \
+    "Global NPM Packages" \
+    "VS Code Extensions" \
+    "─────────────" \
+    "Summary & Manual Items" \
+    "Exit")
+
+  case "$CHOICE" in
+    "Applications")          show_apps ;;
+    "Global NPM Packages")   show_npm ;;
+    "VS Code Extensions")    show_vscode ;;
+    "Summary & Manual Items") show_summary; read -r -n1 ;;
+    "Exit"|"─────────────")
+      show_summary
+      gum style --foreground 212 "Goodbye!"
+      echo ""
+      exit 0
+      ;;
+  esac
 done
-
-echo ""
-gum style --foreground 240 "Dica: para apps da App Store, use 'brew install mas' e 'mas install <id>'."
-echo ""
-gum style --foreground 212 "Concluído."
