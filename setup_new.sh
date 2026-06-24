@@ -80,7 +80,8 @@ else
   echo "⚠️  Homebrew is not installed."
   if gum confirm "Install Homebrew now?" 2>/dev/null || { echo -n "Install Homebrew? [y/N] "; read -r r && [[ "$r" =~ ^[yY] ]]; }; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+    grep -qxF 'eval "$(/opt/homebrew/bin/brew shellenv)"' ~/.zprofile 2>/dev/null || \
+      echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
     eval "$(/opt/homebrew/bin/brew shellenv)"
     echo "✅ Homebrew installed."
   else
@@ -134,35 +135,25 @@ APPS_ITEMS=(
   "OneDrive|cask|onedrive"
   "Notion|cask|notion"
   "Obsidian|cask|obsidian"
-  # AI / Assistants
-  "Claude|cask|claude"
-  "ChatGPT|cask|chatgpt"
-  "Perplexity|cask|perplexity"
   # Editors & IDEs
   "Visual Studio Code|cask|visual-studio-code"
   "Android Studio|cask|android-studio"
   "DataGrip|cask|datagrip"
   # Dev Tools
   "Docker Desktop|cask|docker"
-  "docker-compose|brew|docker-compose"
   "Postman|cask|postman"
   "Insomnia|cask|insomnia"
   "MongoDB Compass|cask|mongodb-compass"
   "MySQL Workbench|cask|mysqlworkbench"
   "DevToys|cask|devtoys"
   "DevDocs|cask|devdocs"
-  "Reactotron|cask|reactotron"
   "draw.io|cask|drawio"
   "ResponsivelyApp|cask|responsively"
   "OBS|cask|obs"
   "The Unarchiver|cask|the-unarchiver"
   "CleanMyMac|cask|cleanmymac"
   "MonitorControl|cask|monitorcontrol"
-  "AWS VPN Client|cask|aws-vpn-client"
   # Dev Tools misc
-  "Watchman|brew|watchman"
-  # iOS
-  "CocoaPods|special|cocoapods"
   # Font
   "Fira Code (font)|special|font-fira-code"
   # Terminal
@@ -177,7 +168,7 @@ app_is_installed() {
     special)
       case "$id" in
         aws)          is_cmd aws ;;
-        pnpm)         is_cmd pnpm ;;
+        nvm)          [ -s "$HOME/.nvm/nvm.sh" ] ;;
         virtualenv)   is_cmd virtualenv ;;
         font-fira-code) is_cask_installed "font-fira-code" ;;
         cocoapods)    is_cmd pod ;;
@@ -196,8 +187,11 @@ install_app() {
       case "$id" in
         aws)
           do_install_cmd "$name" "curl -s 'https://awscli.amazonaws.com/AWSCLIV2.pkg' -o /tmp/AWSCLIV2.pkg && sudo installer -pkg /tmp/AWSCLIV2.pkg -target /" ;;
-        pnpm)
-          do_install_cmd "$name" "curl -fsSL https://get.pnpm.io/install.sh | sh -" ;;
+        nvm)
+          do_install_cmd "$name" \
+            "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash && \
+             grep -qxF '[ -s \"\$NVM_DIR/nvm.sh\" ]' ~/.zshrc 2>/dev/null || \
+             printf '\nexport NVM_DIR=\"\$HOME/.nvm\"\n[ -s \"\$NVM_DIR/nvm.sh\" ] && \\. \"\$NVM_DIR/nvm.sh\"\n[ -s \"\$NVM_DIR/bash_completion\" ] && \\. \"\$NVM_DIR/bash_completion\"\n' >> ~/.zshrc" ;;
         virtualenv)
           do_install_cmd "$name" "pip3 install virtualenv" ;;
         font-fira-code)
@@ -291,9 +285,10 @@ show_apps() {
 # ─────────────────────────────────────────
 
 NODE_ITEMS=(
-  "nvm|brew|nvm"
-  "yarn|brew|yarn"
-  "pnpm|special|pnpm"
+  "nvm|special|nvm"
+  "Watchman|brew|watchman"
+  "CocoaPods|special|cocoapods"
+  "Reactotron|cask|reactotron"
 )
 
 # ─────────────────────────────────────────
@@ -302,6 +297,7 @@ NODE_ITEMS=(
 
 CLOUD_ITEMS=(
   "AWS CLI v2|special|aws"
+  "AWS VPN Client|cask|aws-vpn-client"
   "Terraform|brew|terraform"
   "Helm|brew|helm"
   "kubectl|brew|kubectl"
@@ -313,9 +309,20 @@ show_cloud() {
   show_category "Cloud"
 }
 
+AI_ITEMS=(
+  "Claude|cask|claude"
+  "ChatGPT|cask|chatgpt"
+  "Perplexity|cask|perplexity"
+)
+
+show_ai() {
+  _CATEGORY_ITEMS=("${AI_ITEMS[@]}")
+  show_category "AI Assistants"
+}
+
 show_node() {
   _CATEGORY_ITEMS=("${NODE_ITEMS[@]}")
-  show_category "Node.js"
+  show_category "Node.js Ecosystem"
 }
 
 # ─────────────────────────────────────────
@@ -328,7 +335,7 @@ PYTHON_ITEMS=(
 
 show_python() {
   _CATEGORY_ITEMS=("${PYTHON_ITEMS[@]}")
-  show_category "Python"
+  show_category "Python Ecosystem"
 }
 
 # ─────────────────────────────────────────
@@ -336,6 +343,8 @@ show_python() {
 # ─────────────────────────────────────────
 
 NPM_ITEMS=(
+  "yarn"
+  "pnpm"
   "@anthropic-ai/claude-code"
   "@fission-ai/openspec"
   "autocannon"
@@ -530,9 +539,10 @@ while true; do
 
   CHOICE=$(gum choose \
     "Applications" \
+    "AI Assistants" \
     "Cloud" \
-    "Node.js" \
-    "Python" \
+    "Node.js Ecosystem" \
+    "Python Ecosystem" \
     "Global NPM Packages" \
     "VS Code Extensions" \
     "─────────────" \
@@ -541,9 +551,10 @@ while true; do
 
   case "$CHOICE" in
     "Applications")          show_apps ;;
+    "AI Assistants")         show_ai ;;
     "Cloud")                 show_cloud ;;
-    "Node.js")               show_node ;;
-    "Python")                show_python ;;
+    "Node.js Ecosystem")     show_node ;;
+    "Python Ecosystem")      show_python ;;
     "Global NPM Packages")   show_npm ;;
     "VS Code Extensions")    show_vscode ;;
     "Summary & Manual Items") show_summary; read -r -n1 ;;
