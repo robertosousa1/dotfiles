@@ -32,22 +32,28 @@ is_cmd()               { command -v "$1" &>/dev/null; }
 is_vscode_ext()        { code --list-extensions 2>/dev/null | grep -qix "$1"; }
 is_npm_pkg()           { npm list -g --depth=0 2>/dev/null | grep -q "$1"; }
 
+_run_install() {
+  local name="$1"
+  shift
+  if gum spin --spinner dot --title "Installing $name..." -- "$@"; then
+    gum style --foreground 46  "  ✅ $name installed"
+    INSTALLED_ITEMS+=("$name")
+  else
+    gum style --foreground 196 "  ❌ $name failed"
+    FAILED_ITEMS+=("$name")
+  fi
+}
+
 do_install_cask() {
-  local name="$1" cask="$2"
-  gum spin --spinner dot --title "Installing $name..." -- brew install --cask "$cask" \
-    && INSTALLED_ITEMS+=("$name") || FAILED_ITEMS+=("$name")
+  _run_install "$1" brew install --cask "$2"
 }
 
 do_install_brew() {
-  local name="$1" formula="$2"
-  gum spin --spinner dot --title "Installing $name..." -- brew install "$formula" \
-    && INSTALLED_ITEMS+=("$name") || FAILED_ITEMS+=("$name")
+  _run_install "$1" brew install "$2"
 }
 
 do_install_cmd() {
-  local name="$1" cmd="$2"
-  gum spin --spinner dot --title "Installing $name..." -- bash -c "$cmd" \
-    && INSTALLED_ITEMS+=("$name") || FAILED_ITEMS+=("$name")
+  _run_install "$1" bash -c "$2"
 }
 
 header() {
