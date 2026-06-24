@@ -12,8 +12,8 @@ INSTALLED_ITEMS=()
 MANUAL_ITEMS=(
   "Microsoft To Do — App Store"
   "TestFlight / Transporter — App Store"
-  "Xcode — App Store (10GB+, download directly)"
-  "Friendly Streaming Browser — no cask available"
+  "Xcode — App Store (10GB+)"
+  "Friendly Streaming Browser — App Store"
   "Waterllama — App Store"
   "Perplexity — no cask available, download from https://perplexity.ai"
   "Zinit / zsh plugins — install manually as preferred"
