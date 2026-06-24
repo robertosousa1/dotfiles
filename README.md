@@ -68,11 +68,6 @@ pendências:
 - **Perplexity** — sem cask disponível; baixar em [perplexity.ai](https://perplexity.ai)
 - **GitHub Copilot** — built-in no VS Code 1.99+; basta fazer login com sua
   conta GitHub pelo menu de contas (canto inferior esquerdo do VS Code)
-- **Node.js via nvm** — após instalar o nvm pelo script, rodar manualmente:
-  ```bash
-  nvm install --lts
-  nvm alias default $(node --version)
-  ```
 - **Zinit e plugins zsh** — instalação manual conforme preferência
 - **Tema Dracula para Terminal.app** — clonar manualmente:
   ```bash

@@ -110,6 +110,5 @@ e compartilhado sem expor dados pessoais.
 | Waterllama / Friendly Streaming Browser | App Store ou sem cask |
 | Perplexity | Sem cask disponível |
 | GitHub Copilot | Built-in no VS Code 1.99+, requer login |
-| Node.js (via nvm) | Versão escolhida pelo usuário conforme projetos |
 | Zinit + plugins zsh | Instalação manual por preferência |
 | Tema Dracula (Terminal.app) | Clone manual do repositório |
