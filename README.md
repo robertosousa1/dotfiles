@@ -85,19 +85,19 @@ O repositório também inclui arquivos de configuração de referência:
 
 ## Personalizando
 
-Para adaptar o script ao seu ambiente, edite as seções dentro de `setup.sh`.
-Cada item segue um dos formatos:
+Para adaptar o script ao seu ambiente, edite os arrays dentro de `setup.sh`.
+Os itens seguem o formato `"Nome Exibido|tipo|nome-do-pacote"`:
 
 ```bash
-# App via Homebrew formula
-"nome-formula|brew|Nome Exibido"
-
-# App via Homebrew cask
-"nome-cask|cask|Nome Exibido"
-
-# Item manual (só aparece no resumo final)
-"Descrição — instrução de instalação"
+"Git|brew|git"                        # instala via: brew install git
+"Google Chrome|cask|google-chrome"    # instala via: brew install --cask google-chrome
+"Slack|cask|slack"                    # instala via: brew install --cask slack
 ```
+
+O "Nome Exibido" é o que aparece no menu interativo. O "tipo" é `brew` para
+ferramentas de linha de comando ou `cask` para aplicativos com interface gráfica.
+O "nome-do-pacote" é o identificador do Homebrew — para encontrar o nome correto,
+use `brew search <nome>` ou consulte [formulae.brew.sh](https://formulae.brew.sh).
 
 Adicionar, remover ou comentar linhas é o suficiente para personalizar a lista.
 
