@@ -16,6 +16,7 @@ MANUAL_ITEMS=(
   "Friendly Streaming Browser — App Store"
   "Waterllama — App Store"
   "Perplexity — no cask available, download from https://perplexity.ai"
+  "GitHub Copilot (VS Code) — install from VS Code marketplace: search 'GitHub Copilot'"
   "Zinit / zsh plugins — install manually as preferred"
   "Dracula theme for Terminal.app — git clone https://github.com/dracula/terminal-app.git"
 )
@@ -505,7 +506,6 @@ show_npm() {
 
 VSCODE_ITEMS=(
   "anthropic.claude-code"
-  "github.copilot"
   "bierner.markdown-mermaid"
   "christian-kohler.path-intellisense"
   "dbaeumer.vscode-eslint"
@@ -576,9 +576,7 @@ show_vscode() {
   while IFS= read -r ext; do
     _draw_progress "$_PROGRESS_CURRENT" "$_PROGRESS_TOTAL"
     gum style --foreground 240 "  ⠸ Installing $ext..."
-    local _install_flags=""
-    [[ "$ext" == "github.copilot" ]] && _install_flags="--force"
-    if code --install-extension "$ext" $_install_flags >> "$_INSTALL_LOG" 2>&1; then
+    if code --install-extension "$ext" >> "$_INSTALL_LOG" 2>&1; then
       gum style --foreground 46  "  ✅ $ext installed"
       INSTALLED_ITEMS+=("vscode: $ext")
     else
