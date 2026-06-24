@@ -69,7 +69,11 @@ gum style \
   "Mac Setup" "Checking prerequisites..." 2>/dev/null \
 || echo "=== Mac Setup — Checking prerequisites ==="
 
-# Homebrew
+# Homebrew — load env if installed but not in PATH yet
+if [ -x "/opt/homebrew/bin/brew" ] && ! is_cmd brew; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
 if is_cmd brew; then
   echo "✅ Homebrew — already installed"
 else
