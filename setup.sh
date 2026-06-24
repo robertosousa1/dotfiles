@@ -404,7 +404,7 @@ show_node() {
   if printf '%s\n' "${INSTALLED_ITEMS[@]}" | grep -q "^nvm$"; then
     echo ""
     gum style --foreground 214 "  ⚠️  nvm installed. Run 'Node.js LTS' from this menu to install Node,"
-    gum style --foreground 214 "     or restart your terminal and run: nvm install --lts && nvm alias default --lts"
+    gum style --foreground 214 "     or restart your terminal and run: nvm install --lts && nvm alias default \$(node --version)"
   fi
 }
 
@@ -506,7 +506,6 @@ show_npm() {
 VSCODE_ITEMS=(
   "anthropic.claude-code"
   "github.copilot"
-  "github.copilot-chat"
   "bierner.markdown-mermaid"
   "christian-kohler.path-intellisense"
   "dbaeumer.vscode-eslint"
