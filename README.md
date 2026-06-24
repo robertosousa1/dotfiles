@@ -69,10 +69,6 @@ pendências:
 - **GitHub Copilot** — built-in no VS Code 1.99+; basta fazer login com sua
   conta GitHub pelo menu de contas (canto inferior esquerdo do VS Code)
 - **Zinit e plugins zsh** — instalação manual conforme preferência
-- **Tema Dracula para Terminal.app** — clonar manualmente:
-  ```bash
-  git clone https://github.com/dracula/terminal-app.git
-  ```
 
 ## Dotfiles
 

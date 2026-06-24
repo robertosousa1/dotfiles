@@ -111,4 +111,3 @@ e compartilhado sem expor dados pessoais.
 | Perplexity | Sem cask disponível |
 | GitHub Copilot | Built-in no VS Code 1.99+, requer login |
 | Zinit + plugins zsh | Instalação manual por preferência |
-| Tema Dracula (Terminal.app) | Clone manual do repositório |

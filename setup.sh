@@ -18,7 +18,6 @@ MANUAL_ITEMS=(
   "Perplexity — no cask available, download from https://perplexity.ai"
   "GitHub Copilot (VS Code) — built-in since VS Code 1.99+; sign in via Accounts menu (bottom-left) with your GitHub account"
   "Zinit / zsh plugins — install manually as preferred"
-  "Dracula theme for Terminal.app — git clone https://github.com/dracula/terminal-app.git"
 )
 
 # ─────────────────────────────────────────
