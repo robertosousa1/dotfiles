@@ -26,7 +26,50 @@ MANUAL_ITEMS=(
 # Helpers
 # ─────────────────────────────────────────
 
-is_cask_installed()    { brew list --cask    2>/dev/null | grep -qx "$1"; }
+is_app_installed()     { find /Applications -maxdepth 2 -name "*.app" 2>/dev/null | grep -qi "$1"; }
+is_cask_installed() {
+  local cask="$1"
+  # Map cask name to app name for verification
+  case "$cask" in
+    google-chrome)      is_app_installed "Google Chrome" ;;
+    brave-browser)      is_app_installed "Brave Browser" ;;
+    whatsapp)           is_app_installed "WhatsApp" ;;
+    slack)              is_app_installed "Slack" ;;
+    discord)            is_app_installed "Discord" ;;
+    zoom)               is_app_installed "zoom" ;;
+    microsoft-teams)    is_app_installed "Microsoft Teams" ;;
+    microsoft-word)     is_app_installed "Microsoft Word" ;;
+    microsoft-excel)    is_app_installed "Microsoft Excel" ;;
+    microsoft-powerpoint) is_app_installed "Microsoft PowerPoint" ;;
+    microsoft-outlook)  is_app_installed "Microsoft Outlook" ;;
+    onedrive)           is_app_installed "OneDrive" ;;
+    notion)             is_app_installed "Notion" ;;
+    obsidian)           is_app_installed "Obsidian" ;;
+    claude)             is_app_installed "Claude" ;;
+    chatgpt)            is_app_installed "ChatGPT" ;;
+    perplexity)         is_app_installed "Perplexity" ;;
+    visual-studio-code) is_app_installed "Visual Studio Code" ;;
+    android-studio)     is_app_installed "Android Studio" ;;
+    datagrip)           is_app_installed "DataGrip" ;;
+    docker)             is_app_installed "Docker" ;;
+    postman)            is_app_installed "Postman" ;;
+    insomnia)           is_app_installed "Insomnia" ;;
+    mongodb-compass)    is_app_installed "MongoDB Compass" ;;
+    mysqlworkbench)     is_app_installed "MySQLWorkbench" ;;
+    devtoys)            is_app_installed "DevToys" ;;
+    devdocs)            is_app_installed "DevDocs" ;;
+    drawio)             is_app_installed "draw.io" ;;
+    responsively)       is_app_installed "Responsively" ;;
+    obs)                is_app_installed "OBS" ;;
+    the-unarchiver)     is_app_installed "The Unarchiver" ;;
+    cleanmymac)         is_app_installed "CleanMyMac" ;;
+    monitorcontrol)     is_app_installed "MonitorControl" ;;
+    aws-vpn-client)     is_app_installed "AWS VPN Client" ;;
+    reactotron)         is_app_installed "Reactotron" ;;
+    font-fira-code)     brew list --cask 2>/dev/null | grep -qx "font-fira-code" ;;
+    *)                  brew list --cask 2>/dev/null | grep -qx "$cask" ;;
+  esac
+}
 is_formula_installed() { brew list --formula 2>/dev/null | grep -qx "$1"; }
 is_cmd()               { command -v "$1" &>/dev/null; }
 is_vscode_ext()        { code --list-extensions 2>/dev/null | grep -qix "$1"; }
