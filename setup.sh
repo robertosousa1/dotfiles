@@ -505,6 +505,8 @@ show_npm() {
 
 VSCODE_ITEMS=(
   "anthropic.claude-code"
+  "github.copilot"
+  "github.copilot-chat"
   "bierner.markdown-mermaid"
   "christian-kohler.path-intellisense"
   "dbaeumer.vscode-eslint"
