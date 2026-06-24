@@ -11,7 +11,7 @@
     "editor.renderLineHighlight": "gutter",
     "editor.tabSize": 2,
     "terminal.integrated.fontSize": 12,
-    "terminal.integrated.shell.osx": "/bin/zsh",    
+    "terminal.integrated.defaultProfile.osx": "zsh",
     "emmet.includeLanguages": {
       "javascript": "javascriptreact"
     },
@@ -24,7 +24,7 @@
     "javascript.suggest.autoImports": false,
     "liveServer.settings.CustomBrowser": "chrome",
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
+      "source.fixAll.eslint": "always"
     },
     "files.associations": {
       "*.html": "html"
