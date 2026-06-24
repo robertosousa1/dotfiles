@@ -576,7 +576,9 @@ show_vscode() {
   while IFS= read -r ext; do
     _draw_progress "$_PROGRESS_CURRENT" "$_PROGRESS_TOTAL"
     gum style --foreground 240 "  ⠸ Installing $ext..."
-    if code --install-extension "$ext" >> "$_INSTALL_LOG" 2>&1; then
+    local _install_flags=""
+    [[ "$ext" == "github.copilot" ]] && _install_flags="--force"
+    if code --install-extension "$ext" $_install_flags >> "$_INSTALL_LOG" 2>&1; then
       gum style --foreground 46  "  ✅ $ext installed"
       INSTALLED_ITEMS+=("vscode: $ext")
     else
