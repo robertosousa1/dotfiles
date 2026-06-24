@@ -155,22 +155,10 @@ APPS_ITEMS=(
   "CleanMyMac|cask|cleanmymac"
   "MonitorControl|cask|monitorcontrol"
   "AWS VPN Client|cask|aws-vpn-client"
-  # Cloud / Infra CLIs
-  "AWS CLI v2|special|aws"
-  "AWS EB CLI|brew|awsebcli"
-  "Azure CLI|brew|azure-cli"
-  "Terraform|brew|terraform"
-  "Helm|brew|helm"
-  "kubectl|brew|kubectl"
-  "Argo CD CLI|brew|argocd"
+  # Dev Tools misc
   "Watchman|brew|watchman"
-  # Runtimes
-  "nvm|brew|nvm"
-  "yarn|brew|yarn"
-  "pnpm|special|pnpm"
-  "OpenJDK 17|brew|openjdk@17"
-  "CocoaPods|brew|cocoapods"
-  "virtualenv|special|virtualenv"
+  # iOS
+  "CocoaPods|special|cocoapods"
   # Font
   "Fira Code (font)|special|font-fira-code"
   # Terminal
@@ -188,6 +176,7 @@ app_is_installed() {
         pnpm)         is_cmd pnpm ;;
         virtualenv)   is_cmd virtualenv ;;
         font-fira-code) is_cask_installed "font-fira-code" ;;
+        cocoapods)    is_cmd pod ;;
         omz)          [ -d "$HOME/.oh-my-zsh" ] ;;
       esac
       ;;
@@ -208,25 +197,39 @@ install_app() {
         virtualenv)
           do_install_cmd "$name" "pip3 install virtualenv" ;;
         font-fira-code)
-          do_install_cmd "$name" "brew tap homebrew/cask-fonts && brew install --cask font-fira-code" ;;
+          do_install_cask "$name" "font-fira-code" ;;
+        cocoapods)
+          do_install_cmd "$name" "sudo gem install cocoapods" ;;
         omz)
           do_install_cmd "$name" \
             "sh -c \"\$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" '' --unattended && \
-             git clone https://github.com/denysdovhan/spaceship-prompt.git \"\${ZSH_CUSTOM:-\$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt\" --depth=1 && \
-             ln -sf \"\${ZSH_CUSTOM:-\$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt/spaceship.zsh-theme\" \"\${ZSH_CUSTOM:-\$HOME/.oh-my-zsh/custom}/themes/spaceship.zsh-theme\"" ;;
+             bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh)\" && \
+             sed -i '' 's/ZSH_THEME=\"robbyrussell\"/ZSH_THEME=\"spaceship\"/' ~/.zshrc && \
+             cat >> ~/.zshrc << 'EOF'
+
+# zinit plugins
+zinit light spaceship-prompt/spaceship-prompt
+zinit light zsh-users/zsh-autosuggestions
+zinit light zsh-users/zsh-completions
+zinit light zdharma-continuum/fast-syntax-highlighting
+EOF" ;;
       esac
       ;;
   esac
 }
 
-show_apps() {
-  header "Applications"
+# Generic category screen — set _CATEGORY_ITEMS before calling
+_CATEGORY_ITEMS=()
+
+show_category() {
+  local title="$1"
+  header "$title"
 
   local installed_labels=()
   local available_labels=()
   local available_entries=()
 
-  for entry in "${APPS_ITEMS[@]}"; do
+  for entry in "${_CATEGORY_ITEMS[@]}"; do
     IFS='|' read -r name type id <<< "$entry"
     if app_is_installed "$name" "$type" "$id"; then
       installed_labels+=("$name")
@@ -245,7 +248,7 @@ show_apps() {
   fi
 
   if [ ${#available_labels[@]} -eq 0 ]; then
-    gum style --foreground 46 "All applications are already installed!"
+    gum style --foreground 46 "All items are already installed!"
     sleep 2
     return
   fi
@@ -272,6 +275,56 @@ show_apps() {
   echo ""
   gum style --foreground 212 "Done. Press any key to return to the menu."
   read -r -n1
+}
+
+show_apps() {
+  _CATEGORY_ITEMS=("${APPS_ITEMS[@]}")
+  show_category "Applications"
+}
+
+# ─────────────────────────────────────────
+# Node.js
+# ─────────────────────────────────────────
+
+NODE_ITEMS=(
+  "nvm|brew|nvm"
+  "yarn|brew|yarn"
+  "pnpm|special|pnpm"
+)
+
+# ─────────────────────────────────────────
+# Cloud
+# ─────────────────────────────────────────
+
+CLOUD_ITEMS=(
+  "AWS CLI v2|special|aws"
+  "Terraform|brew|terraform"
+  "Helm|brew|helm"
+  "kubectl|brew|kubectl"
+  "Argo CD CLI|brew|argocd"
+)
+
+show_cloud() {
+  _CATEGORY_ITEMS=("${CLOUD_ITEMS[@]}")
+  show_category "Cloud"
+}
+
+show_node() {
+  _CATEGORY_ITEMS=("${NODE_ITEMS[@]}")
+  show_category "Node.js"
+}
+
+# ─────────────────────────────────────────
+# Python
+# ─────────────────────────────────────────
+
+PYTHON_ITEMS=(
+  "virtualenv|special|virtualenv"
+)
+
+show_python() {
+  _CATEGORY_ITEMS=("${PYTHON_ITEMS[@]}")
+  show_category "Python"
 }
 
 # ─────────────────────────────────────────
@@ -473,6 +526,9 @@ while true; do
 
   CHOICE=$(gum choose \
     "Applications" \
+    "Cloud" \
+    "Node.js" \
+    "Python" \
     "Global NPM Packages" \
     "VS Code Extensions" \
     "─────────────" \
@@ -481,6 +537,9 @@ while true; do
 
   case "$CHOICE" in
     "Applications")          show_apps ;;
+    "Cloud")                 show_cloud ;;
+    "Node.js")               show_node ;;
+    "Python")                show_python ;;
     "Global NPM Packages")   show_npm ;;
     "VS Code Extensions")    show_vscode ;;
     "Summary & Manual Items") show_summary; read -r -n1 ;;
