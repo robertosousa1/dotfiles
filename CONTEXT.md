@@ -1,165 +1,115 @@
-# Contexto e decisões — Setup do MacBook
+# Contexto e decisões técnicas
 
-Este documento existe para que o Claude Code (ou qualquer pessoa) entenda o
-raciocínio por trás dos scripts sem precisar reconstruir a conversa original.
+Este documento registra o raciocínio por trás das escolhas feitas no projeto —
+útil para quem quiser contribuir, adaptar ou entender por que certas coisas
+funcionam do jeito que funcionam.
 
-## Natureza do projeto
+## O que é este projeto
 
-Este é um projeto de **setup de configuração de Mac**, não um projeto de
-"migração" entre dois Macs. O script `setup.sh` deve funcionar em qualquer
-MacBook novo, independentemente de existir ou não um Mac antigo por perto.
+Um script interativo de setup de Mac. Funciona em qualquer MacBook novo, sem
+dependências de uma máquina anterior. A ideia é ter um inventário pessoal de
+ferramentas que pode ser reaplicado a qualquer momento.
 
-O MacBook antigo do usuário foi usado **apenas como insumo** para decidir o que
-entra no script (lista de apps reais em uso, Brewfile existente, ferramentas de
-trabalho) — não é uma dependência do fluxo. Uma vez que o script reflita o que o
-usuário realmente usa, ele pode ser reaplicado em qualquer Mac novo no futuro,
-sem precisar de acesso a um Mac antigo.
-
-## Estrutura do repositório (dotfiles)
+## Estrutura do repositório
 
 ```
 dotfiles/
-├── .gitconfig
-├── .zshrc
-├── CONTEXT.md
+├── setup.sh              # script de instalação interativo
+├── vscode.settings.json  # configurações de referência do VS Code
+├── .gitconfig            # aliases e configurações do Git
+├── .zshrc                # configuração do shell zsh
 ├── README.md
-├── setup.sh              ← script ATIVO, foco do trabalho agora
-└── vscode.settings.json
+└── CONTEXT.md
 ```
 
-**Escopo atual: trabalhar exclusivamente no `setup.sh`.**
-`.gitconfig`, `.zshrc` e `vscode.settings.json` ainda não entraram em revisão —
-isso é uma etapa futura, depois que o `setup.sh` estiver fechado.
-`setup.sh` é o script antigo (pré-projeto), serve só de contexto histórico, não
-deve ser editado nem executado como instalador real.
+## Decisões técnicas
 
-## Objetivo
+### Dependência do `gum`
 
-Configurar um MacBook (atualmente um M5 Pro) com apps, ferramentas de linha de
-comando, extensões e configurações, com o mínimo de fricção e máximo de
-automação possível via Homebrew — mas com **confirmação manual item a item** no
-script de instalação, para evitar instalar coisas que não são mais usadas.
+O script usa [gum](https://github.com/charmbracelet/gum) para a interface
+interativa (menus, checkboxes, progress bar). O Homebrew é instalado
+automaticamente se ausente, mas o `gum` precisa estar disponível antes de
+rodar o script — ou o script tenta instalá-lo via `brew install gum` na
+inicialização.
 
-## Origem dos dados (insumo, não dependência)
+### Homebrew como padrão
 
-1. **Script antigo do usuário** (`setup.sh`, criado em um momento anterior,
-   estilo "setup de Mac" linear, sem confirmações) — serviu de base para o
-   inventário de ferramentas, mas estava desatualizado (ex: Node 14.16.0 fixo,
-   links antigos do Oh My Zsh, apps que o usuário não usa mais como SoapUI,
-   Miniconda, JDK 8).
-2. **`coletar_migracao.sh`** rodado no Mac antigo do usuário, gerando:
-   - `lista_apps.txt` (apps em `/Applications`)
-   - `Brewfile` (formulas, casks, extensões vscode, pacotes npm já via
-     `brew bundle dump`)
-   Esse script foi só uma ferramenta de **levantamento de inventário** — não
-   faz parte do setup em si e não é necessário para rodar o `setup.sh`.
-3. Cruzamento manual entre os dois para decidir o que entra no `setup.sh`.
+Homebrew é preferido sobre Mac App Store sempre que existir cask equivalente
+— facilita automação e atualização (`brew upgrade`). A App Store só é usada
+quando não há alternativa (apps exclusivos da loja).
 
-## Decisões tomadas
+### CocoaPods via Homebrew
 
-### CocoaPods
-- Instalado via **`brew install cocoapods`**, não via `gem install cocoapods`.
-- Motivo: o Ruby do sistema no macOS Sequoia é a versão 2.6, que é antiga demais
-  para a dependência `ffi` exigida pelo CocoaPods (requer Ruby >= 3.0). O
-  `brew install` usa o Ruby interno do Homebrew, evitando esse conflito.
-- A doc oficial do CocoaPods e do React Native recomendam `gem install`, mas
-  essa orientação está desatualizada para macOS moderno com Apple Silicon.
-- Risco aceito: o Homebrew pode demorar a atualizar o CocoaPods para versões
-  mais novas, e em projetos com restrição de versão no `Podfile` pode haver
-  incompatibilidade — improvável na prática.
-- Alternativa descartada: instalar `rbenv` + Ruby 3.x antes do CocoaPods
-  seguiria a doc oficial, mas `rbenv global` substitui o Ruby padrão do sistema
-  podendo impactar ferramentas nativas do macOS que dependem do Ruby 2.6.
+Instalado via `brew install cocoapods`, não via `gem install cocoapods`.
 
-### Estratégia geral
-- **Homebrew é preferido sobre Mac App Store** sempre que existir cask
-  equivalente — facilita automação (`brew bundle`/scripts) e atualização
-  (`brew upgrade`).
-- App Store (`mas`) só é usado quando não há alternativa via Homebrew (apps
-  exclusivos da loja).
-- Apps geridos por TI/MDM da empresa (HIAE) **não são instalados via Homebrew**
-  — ficam marcados como manuais, pois o Company Portal/MDM corporativo deve
-  reinstalá-los automaticamente ou exigem pacote interno.
-
-### Itens removidos do script (não usados atualmente / substituídos)
-Removidos a pedido do usuário por não fazerem mais parte do fluxo de trabalho
-atual:
-- **pyenv**, **Elixir** — não usados atualmente.
-- **create-react-app** — descontinuado/não usado.
-- **appcenter-cli** — não usado.
-- **Microsoft Edge**, **Telegram**, **Skype** — navegadores/comunicação não usados.
-- **Microsoft Defender**, **Microsoft Company Portal** — geridos por TI, fora do
-  escopo de instalação manual via Homebrew (de qualquer forma seriam
-  reinstalados pelo MDM da empresa).
-- **Adobe Acrobat Reader** — não usado mais.
-- **Microsoft Remote Desktop** — não usado.
-- **Keynote / Pages** — usa equivalentes Microsoft (Word/PowerPoint).
-- **ChatGPT Atlas** — app novo sem cask confirmado no Homebrew; se necessário,
-  baixar manualmente do site da OpenAI.
-- **Cursor** — não usado (usuário prioriza VS Code).
-- **Studio 3T** — não usado mais (MongoDB Compass é suficiente).
-- **TeamViewer** — não usado.
-- **GlobalProtect**, **Falcon (CrowdStrike)**, **Secure Login Client** — ligados
-  à infraestrutura de segurança corporativa do HIAE; melhor deixar o
-  MDM/Company Portal cuidar disso.
-- **BirdID** — certificado digital, sem cask, não incluído no fluxo automatizado.
-- **Amphetamine** — não usado.
-
-### Corepack
-- Decisão: **não incluir `corepack enable`** no script.
-- Raciocínio: o usuário já instala yarn (via Homebrew) e pnpm (via script oficial)
-  diretamente, sem depender do campo `"packageManager"` no `package.json`.
-  Corepack só traria valor se os projetos especificassem versões individuais de
-  gerenciador de pacotes por projeto — o que não é a prática atual do usuário.
-  Pode ser revisitado se algum projeto futuro exigir essa abordagem.
+- **Motivo:** o Ruby do sistema no macOS Sequoia é a versão 2.6, antiga demais
+  para a dependência `ffi` do CocoaPods (exige Ruby >= 3.0). O Homebrew usa
+  seu próprio Ruby internamente, evitando o conflito.
+- **Alternativa descartada:** instalar `rbenv` + Ruby 3.x seria mais correto
+  segundo a doc oficial, mas `rbenv global` substitui o Ruby padrão do sistema,
+  podendo impactar ferramentas nativas do macOS.
+- **Risco aceito:** o Homebrew pode demorar a atualizar o CocoaPods; projetos
+  com restrição de versão no `Podfile` podem ter incompatibilidade (improvável
+  na prática).
 
 ### Node.js / nvm
-- O script **não fixa uma versão de Node** (o script antigo usava `14.16.0`,
-  hoje EOL). Em vez disso, fica como item manual:
-  `nvm install --lts && nvm alias default --lts`
-  para o usuário escolher a versão ativa conforme necessidade dos projetos.
 
-### Itens mantidos como instalação manual (não automatizados)
-- **TestFlight / Transporter** — exclusivos da App Store.
-- **Microsoft To Do** — exclusivo da App Store.
-- **Xcode** — App Store, mas grande (10GB+), melhor baixar direto no Mac novo.
-- **Friendly Streaming Browser** — sem cask disponível.
-- **Waterllama** — App Store.
-- **JDK 8 (legado)** — só instalar se algum projeto específico ainda exigir.
-- **Miniconda** — só instalar se necessário.
-- **Zinit / plugins zsh** (zsh-autosuggestions, zsh-completions,
-  fast-syntax-highlighting) — instalação manual, conforme preferência de setup
-  do terminal.
-- **Tema Dracula para Terminal.app** — clone manual do repositório.
+O script instala o `nvm` mas não fixa uma versão de Node. Após instalar o nvm,
+o usuário escolhe a versão conforme os projetos:
 
-## Estrutura do script `setup.sh`
+```bash
+nvm install --lts
+nvm alias default $(node --version)
+```
 
-- Funções helper: `confirm()` (pergunta s/N), `run_brew()`, `run_cask()`,
-  `add_manual()`, `section()` (para organizar saída no terminal).
-- Arrays de controle: `MANUAL_ITEMS`, `SKIPPED_ITEMS`, `FAILED_ITEMS` — usados
-  para gerar o resumo final.
-- Seções, em ordem: Homebrew → Git → Navegadores → Comunicação → Produtividade/
-  Microsoft 365 → IA/Assistentes → Editores/IDEs → Ferramentas de
-  desenvolvimento → CLIs de Cloud/Infra → Linguagens/Runtimes → Pacotes globais
-  npm → Fontes → Zsh/Terminal → Extensões VS Code → Resumo.
+`nvm alias default --lts` não é válido — `--lts` não é aceito pelo `nvm alias`.
 
-## Dados sensíveis
+### GitHub Copilot
 
-Se for usado novamente como ferramenta de levantamento de inventário, o
-`coletar_migracao.sh` copia `.aws/credentials` e `.ssh/config` para uma pasta
-local. Caso esses arquivos precisem ser movidos entre máquinas, **transferir
-apenas via AirDrop/USB**, nunca por nuvem pública, e apagar a cópia temporária
-depois de usada.
+A extensão `github.copilot` foi **depreciada**. A extensão atual é
+`github.copilot-chat`, mas ela já vem **built-in no VS Code 1.99+** — não pode
+ser instalada nem atualizada via `code --install-extension` (o VS Code rejeita
+qualquer versão diferente da built-in).
 
-## Próximos passos sugeridos (para retomar no Claude Code)
+A solução correta é fazer login com a conta GitHub pelo menu de contas do
+próprio VS Code (canto inferior esquerdo). Nenhuma instalação de extensão é
+necessária.
 
-1. Revisar e testar o `setup.sh` em um Mac novo, conferindo o resumo final
-   gerado (itens pulados, falhos e manuais).
-3. Resolver manualmente os itens de App Store via `mas` (instalar `mas`, e usar
-   `mas install <id>` para cada app — os IDs podem ser obtidos com `mas list`
-   em qualquer Mac que já tenha os apps instalados, não necessariamente um
-   "Mac antigo" específico).
-4. Quando o `setup.sh` estiver fechado, avançar para revisar e versionar
-   `.gitconfig`, `.zshrc` e `vscode.settings.json` no mesmo repositório.
-5. Validar versões de ferramentas críticas (kubectl, terraform, helm, argocd,
-   aws-cli, azure-cli) após a instalação.
+### Corepack
+
+Não incluído no script. O yarn é instalado via Homebrew e o pnpm via script
+oficial — sem depender do campo `"packageManager"` no `package.json`. Corepack
+só traz valor em projetos que especificam versão de gerenciador por projeto,
+o que não é o caso aqui.
+
+### vscode.settings.json
+
+As configurações foram revisadas para remover settings depreciados:
+
+- `javascript.suggest.autoImports` → `js/ts.suggest.autoImports`
+- `javascript.updateImportsOnFileMove.enabled` → `js/ts.updateImportsOnFileMove.enabled`
+- `typescript.tsserver.log` → `js/ts.tsserver.log`
+- `editor.codeActionsOnSave` usa `"always"` em vez de `true` (depreciado)
+
+O arquivo é uma referência — não é aplicado automaticamente pelo script.
+
+### .gitconfig
+
+O arquivo não inclui a seção `[user]` (name/email) — cada pessoa deve
+configurar localmente com `git config --global user.name` e
+`git config --global user.email`. Isso permite que o arquivo seja versionado
+e compartilhado sem expor dados pessoais.
+
+## Itens mantidos como manuais (não automatizados)
+
+| Item | Motivo |
+|---|---|
+| Xcode | App Store, 10 GB+ |
+| Microsoft To Do | Exclusivo App Store |
+| TestFlight / Transporter | Exclusivos App Store |
+| Waterllama / Friendly Streaming Browser | App Store ou sem cask |
+| Perplexity | Sem cask disponível |
+| GitHub Copilot | Built-in no VS Code 1.99+, requer login |
+| Node.js (via nvm) | Versão escolhida pelo usuário conforme projetos |
+| Zinit + plugins zsh | Instalação manual por preferência |
+| Tema Dracula (Terminal.app) | Clone manual do repositório |

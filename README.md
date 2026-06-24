@@ -6,21 +6,41 @@ linha de comando, runtimes e extensões de editor, instalados via [Homebrew](htt
 ## Por que
 
 A maioria dos scripts de setup de Mac instala tudo de uma vez, sem chance de
-revisão. Este script pergunta item por item antes de instalar, e termina com
-um resumo claro do que foi instalado, do que foi pulado e do que precisa de
-ação manual (App Store, apps corporativos, ou pacotes sem cask disponível).
+revisão. Este script usa uma interface interativa (via [gum](https://github.com/charmbracelet/gum))
+que permite selecionar exatamente o que instalar em cada categoria, e termina
+com um resumo claro do que foi instalado, do que foi pulado e do que precisa de
+ação manual.
+
+## Pré-requisitos
+
+- macOS (testado no Sequoia com Apple Silicon)
+- Conexão com a internet
+- Acesso de administrador
+- [`gum`](https://github.com/charmbracelet/gum) — a interface do script depende dele
+
+Para instalar o `gum` antes de rodar o script:
+
+```bash
+brew install gum
+```
+
+Se o Homebrew ainda não estiver instalado, o script instala automaticamente ao
+ser iniciado.
 
 ## Uso
 
 ```bash
+git clone https://github.com/robertosousa1/dotfiles.git
+cd dotfiles
 chmod +x setup.sh
 ./setup.sh
 ```
 
-Para cada item, responda `s` para instalar ou Enter/qualquer outra tecla para
-pular. Ao final, o script exibe:
+O script abre um menu com categorias. Em cada uma, você seleciona os itens que
+quer instalar (espaço para marcar, enter para confirmar). Ao final, exibe um
+resumo:
 
-- ✅ itens instalados
+- ✅ itens instalados com sucesso
 - ⏭️ itens pulados
 - ❌ itens que falharam
 - 📋 itens que exigem instalação manual
@@ -32,49 +52,84 @@ pular. Ao final, o script exibe:
 | Navegadores | Chrome, Brave |
 | Comunicação | WhatsApp, Slack, Discord, Zoom, Teams |
 | Produtividade | Word, Excel, PowerPoint, Outlook, OneDrive, Notion, Obsidian |
-| IA / Assistentes | Claude, ChatGPT, Perplexity |
+| IA / Assistentes | Claude, ChatGPT |
 | Editores / IDEs | VS Code, Android Studio, DataGrip |
 | Ferramentas de dev | Docker, Postman, Insomnia, MongoDB Compass, DevToys |
 | CLIs de cloud/infra | AWS CLI, Azure CLI, Terraform, Helm, kubectl, Argo CD |
 | Linguagens / runtimes | nvm, yarn, pnpm, OpenJDK, CocoaPods |
 | Terminal | Git, GitHub CLI, Oh My Zsh + Spaceship |
-| Editor | Extensões do VS Code (ESLint, Prettier, GitLens, Copilot, etc.) |
+| VS Code | ESLint, Prettier, GitLens, Dracula, Snyk, etc. |
 
-A lista completa está no próprio script, organizada em seções.
+A lista completa está no próprio script, organizada em seções comentadas.
 
-## Requisitos
+## O que exige ação manual
 
-- macOS
-- Conexão com a internet
-- Acesso de administrador (necessário para instalar o AWS CLI v2)
+Alguns itens não podem ser automatizados e aparecem no resumo final como
+pendências:
 
-## Estrutura
+- **Xcode** — App Store (10 GB+), melhor baixar direto no Mac novo
+- **Microsoft To Do** — exclusivo da App Store
+- **TestFlight / Transporter** — exclusivos da App Store
+- **Waterllama / Friendly Streaming Browser** — App Store ou sem cask
+- **Perplexity** — sem cask disponível; baixar em [perplexity.ai](https://perplexity.ai)
+- **GitHub Copilot** — built-in no VS Code 1.99+; basta fazer login com sua
+  conta GitHub pelo menu de contas (canto inferior esquerdo do VS Code)
+- **Node.js via nvm** — após instalar o nvm pelo script, rodar manualmente:
+  ```bash
+  nvm install --lts
+  nvm alias default $(node --version)
+  ```
+- **Zinit e plugins zsh** — instalação manual conforme preferência
+- **Tema Dracula para Terminal.app** — clonar manualmente:
+  ```bash
+  git clone https://github.com/dracula/terminal-app.git
+  ```
 
+## Dotfiles
+
+O repositório também inclui arquivos de configuração de referência:
+
+| Arquivo | O que é |
+|---|---|
+| `vscode.settings.json` | Configurações do VS Code (copiar para `~/Library/Application Support/Code/User/settings.json`) |
+| `.gitconfig` | Aliases e configurações do Git (copiar para `~/.gitconfig`) |
+| `.zshrc` | Configuração do shell zsh (copiar para `~/.zshrc`) |
+
+> Esses arquivos são referências — não são aplicados automaticamente pelo
+> script. Revise e adapte antes de usar.
+
+## Personalizando
+
+Para adaptar o script ao seu ambiente, edite as seções dentro de `setup.sh`.
+Cada item segue um dos formatos:
+
+```bash
+# App via Homebrew formula
+"nome-formula|brew|Nome Exibido"
+
+# App via Homebrew cask
+"nome-cask|cask|Nome Exibido"
+
+# Item manual (só aparece no resumo final)
+"Descrição — instrução de instalação"
 ```
-.
-├── setup.sh   # script de instalação
-├── .gitconfig      # configuração padrão do Git (a revisar)
-├── .zshrc          # configuração do shell (a revisar)
-└── vscode.settings.json  # configurações do VS Code (a revisar)
-```
 
-> `.gitconfig`, `.zshrc` e `vscode.settings.json` ainda estão em revisão e
-> serão documentados em uma versão futura.
+Adicionar, remover ou comentar linhas é o suficiente para personalizar a lista.
 
 ## Observações técnicas
 
 **CocoaPods** é instalado via `brew install cocoapods` em vez do método oficial
-(`gem install cocoapods`). O motivo é que o Ruby incluído no macOS Sequoia (2.6)
-é antigo demais para as dependências atuais do CocoaPods, que exigem Ruby >= 3.0.
-O Homebrew usa seu próprio Ruby internamente, contornando esse problema sem
+(`gem install cocoapods`). O Ruby incluído no macOS Sequoia (2.6) é antigo
+demais para as dependências atuais do CocoaPods, que exigem Ruby >= 3.0.
+O Homebrew usa seu próprio Ruby internamente, contornando o problema sem
 interferir no Ruby do sistema. Ver detalhes em [CONTEXT.md](CONTEXT.md).
 
-## Personalizando
-
-Para adaptar a lista de apps às suas necessidades, edite as seções dentro de
-`setup.sh` — cada item usa uma das funções `run_brew`, `run_cask` ou
-`add_manual`, então é direto adicionar, remover ou comentar linhas.
+**GitHub Copilot** não pode ser instalado via `code --install-extension` porque
+a extensão `github.copilot` foi depreciada e a `github.copilot-chat` (atual)
+já vem built-in no VS Code 1.99+. Qualquer tentativa de instalação via CLI
+resulta em erro de conflito de versão. A solução é fazer login pelo próprio
+VS Code.
 
 ## Licença
 
-MIT (ou a de sua preferência).
+MIT
