@@ -15,7 +15,7 @@ MANUAL_ITEMS=(
   "Xcode — App Store (10GB+, download directly)"
   "Friendly Streaming Browser — no cask available"
   "Waterllama — App Store"
-  "Node via nvm — run: nvm install --lts && nvm alias default --lts"
+  "Perplexity — no cask available, download from https://perplexity.ai"
   "JDK 8 (legacy) — only if needed: brew install --cask adoptopenjdk/openjdk/adoptopenjdk8"
   "Miniconda — only if needed: brew install --cask miniconda"
   "Zinit / zsh plugins — install manually as preferred"
@@ -237,6 +237,7 @@ app_is_installed() {
       case "$id" in
         aws)          is_cmd aws ;;
         nvm)          [ -s "$HOME/.nvm/nvm.sh" ] ;;
+        node-lts)     [ -s "$HOME/.nvm/nvm.sh" ] && source "$HOME/.nvm/nvm.sh" && nvm which default &>/dev/null ;;
         virtualenv)   is_cmd virtualenv ;;
         font-fira-code) is_cask_installed "font-fira-code" ;;
         cocoapods)    is_cmd pod ;;
@@ -255,6 +256,9 @@ install_app() {
       case "$id" in
         aws)
           do_install_cmd "$name" "curl -s 'https://awscli.amazonaws.com/AWSCLIV2.pkg' -o /tmp/AWSCLIV2.pkg && sudo installer -pkg /tmp/AWSCLIV2.pkg -target /" ;;
+        node-lts)
+          do_install_cmd "$name" \
+            "source \"\$HOME/.nvm/nvm.sh\" && nvm install --lts && nvm alias default --lts" ;;
         nvm)
           do_install_cmd "$name" \
             "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash && \
@@ -341,8 +345,15 @@ show_category() {
     done
   done <<< "$selected"
 
+  _draw_progress "$_PROGRESS_TOTAL" "$_PROGRESS_TOTAL"
   echo ""
-  gum style --foreground 212 "Done. Press any key to return to the menu."
+  if [ ${#FAILED_ITEMS[@]} -eq 0 ]; then
+    gum style --foreground 46 "  All selected items installed successfully!"
+  else
+    gum style --foreground 214 "  Done with some failures. Check the log: $_INSTALL_LOG"
+  fi
+  echo ""
+  gum style --foreground 212 "Press any key to return to the menu."
   read -r -n1
 }
 
@@ -357,6 +368,7 @@ show_apps() {
 
 NODE_ITEMS=(
   "nvm|special|nvm"
+  "Node.js LTS (via nvm)|special|node-lts"
   "Watchman|brew|watchman"
   "CocoaPods|special|cocoapods"
   "Reactotron|cask|reactotron"
@@ -383,7 +395,6 @@ show_cloud() {
 AI_ITEMS=(
   "Claude|cask|claude"
   "ChatGPT|cask|chatgpt"
-  "Perplexity|cask|perplexity"
 )
 
 show_ai() {
@@ -394,6 +405,11 @@ show_ai() {
 show_node() {
   _CATEGORY_ITEMS=("${NODE_ITEMS[@]}")
   show_category "Node.js Ecosystem"
+  if printf '%s\n' "${INSTALLED_ITEMS[@]}" | grep -q "^nvm$"; then
+    echo ""
+    gum style --foreground 214 "  ⚠️  nvm installed. Run 'Node.js LTS' from this menu to install Node,"
+    gum style --foreground 214 "     or restart your terminal and run: nvm install --lts && nvm alias default --lts"
+  fi
 }
 
 # ─────────────────────────────────────────
