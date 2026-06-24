@@ -16,16 +16,10 @@ ação manual.
 - macOS (testado no Sequoia com Apple Silicon)
 - Conexão com a internet
 - Acesso de administrador
-- [`gum`](https://github.com/charmbracelet/gum) — a interface do script depende dele
 
-Para instalar o `gum` antes de rodar o script:
-
-```bash
-brew install gum
-```
-
-Se o Homebrew ainda não estiver instalado, o script instala automaticamente ao
-ser iniciado.
+O script instala automaticamente o [Homebrew](https://brew.sh) e o
+[`gum`](https://github.com/charmbracelet/gum) (interface interativa) caso
+ainda não estejam presentes, pedindo confirmação antes de cada um.
 
 ## Uso
 
