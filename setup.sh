@@ -4,8 +4,8 @@
 # Interactive menu to install apps, npm packages and VS Code extensions.
 #
 # Usage:
-#   chmod +x setup.sh
-#   ./setup.sh
+#   chmod +x setup_new.sh
+#   ./setup_new.sh
 
 FAILED_ITEMS=()
 INSTALLED_ITEMS=()
