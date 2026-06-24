@@ -585,8 +585,15 @@ show_vscode() {
     _PROGRESS_CURRENT=$(( _PROGRESS_CURRENT + 1 ))
   done <<< "$selected"
 
+  _draw_progress "$_PROGRESS_TOTAL" "$_PROGRESS_TOTAL"
   echo ""
-  gum style --foreground 212 "Done. Press any key to return to the menu."
+  if [ ${#FAILED_ITEMS[@]} -eq 0 ]; then
+    gum style --foreground 46 "  All selected items installed successfully!"
+  else
+    gum style --foreground 214 "  Done with some failures. Check the log: $_INSTALL_LOG"
+  fi
+  echo ""
+  gum style --foreground 212 "Press any key to return to the menu."
   read -r -n1
 }
 
