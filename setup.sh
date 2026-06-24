@@ -514,7 +514,6 @@ VSCODE_ITEMS=(
   "esbenp.prettier-vscode"
   "foxundermoon.shell-format"
   "hashicorp.terraform"
-  "jpoissonnier.vscode-styled-components"
   "mikestead.dotenv"
   "ms-azuretools.vscode-docker"
   "naumovs.color-highlight"
@@ -522,7 +521,7 @@ VSCODE_ITEMS=(
   "pkief.material-icon-theme"
   "prisma.prisma"
   "ritwickdey.liveserver"
-  "snyk-security.vscode-vuln-cost"
+  "snyk-security.snyk-vulnerability-scanner"
   "wix.vscode-import-cost"
   "yzhang.markdown-all-in-one"
 )
