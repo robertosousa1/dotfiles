@@ -6,7 +6,7 @@ raciocínio por trás dos scripts sem precisar reconstruir a conversa original.
 ## Natureza do projeto
 
 Este é um projeto de **setup de configuração de Mac**, não um projeto de
-"migração" entre dois Macs. O script `setup_new.sh` deve funcionar em qualquer
+"migração" entre dois Macs. O script `setup.sh` deve funcionar em qualquer
 MacBook novo, independentemente de existir ou não um Mac antigo por perto.
 
 O MacBook antigo do usuário foi usado **apenas como insumo** para decidir o que
@@ -23,14 +23,13 @@ dotfiles/
 ├── .zshrc
 ├── CONTEXT.md
 ├── README.md
-├── setup_new.sh          ← script ATIVO, foco do trabalho agora
-├── setup.sh              ← script ANTIGO do usuário, mantido só como referência
+├── setup.sh              ← script ATIVO, foco do trabalho agora
 └── vscode.settings.json
 ```
 
-**Escopo atual: trabalhar exclusivamente no `setup_new.sh`.**
+**Escopo atual: trabalhar exclusivamente no `setup.sh`.**
 `.gitconfig`, `.zshrc` e `vscode.settings.json` ainda não entraram em revisão —
-isso é uma etapa futura, depois que o `setup_new.sh` estiver fechado.
+isso é uma etapa futura, depois que o `setup.sh` estiver fechado.
 `setup.sh` é o script antigo (pré-projeto), serve só de contexto histórico, não
 deve ser editado nem executado como instalador real.
 
@@ -53,8 +52,8 @@ script de instalação, para evitar instalar coisas que não são mais usadas.
    - `Brewfile` (formulas, casks, extensões vscode, pacotes npm já via
      `brew bundle dump`)
    Esse script foi só uma ferramenta de **levantamento de inventário** — não
-   faz parte do setup em si e não é necessário para rodar o `setup_new.sh`.
-3. Cruzamento manual entre os dois para decidir o que entra no `setup_new.sh`.
+   faz parte do setup em si e não é necessário para rodar o `setup.sh`.
+3. Cruzamento manual entre os dois para decidir o que entra no `setup.sh`.
 
 ## Decisões tomadas
 
@@ -133,7 +132,7 @@ atual:
   do terminal.
 - **Tema Dracula para Terminal.app** — clone manual do repositório.
 
-## Estrutura do script `setup_new.sh`
+## Estrutura do script `setup.sh`
 
 - Funções helper: `confirm()` (pergunta s/N), `run_brew()`, `run_cask()`,
   `add_manual()`, `section()` (para organizar saída no terminal).
@@ -154,13 +153,13 @@ depois de usada.
 
 ## Próximos passos sugeridos (para retomar no Claude Code)
 
-1. Revisar e testar o `setup_new.sh` em um Mac novo, conferindo o resumo final
+1. Revisar e testar o `setup.sh` em um Mac novo, conferindo o resumo final
    gerado (itens pulados, falhos e manuais).
 3. Resolver manualmente os itens de App Store via `mas` (instalar `mas`, e usar
    `mas install <id>` para cada app — os IDs podem ser obtidos com `mas list`
    em qualquer Mac que já tenha os apps instalados, não necessariamente um
    "Mac antigo" específico).
-4. Quando o `setup_new.sh` estiver fechado, avançar para revisar e versionar
+4. Quando o `setup.sh` estiver fechado, avançar para revisar e versionar
    `.gitconfig`, `.zshrc` e `vscode.settings.json` no mesmo repositório.
 5. Validar versões de ferramentas críticas (kubectl, terraform, helm, argocd,
    aws-cli, azure-cli) após a instalação.

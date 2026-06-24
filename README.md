@@ -13,8 +13,8 @@ ação manual (App Store, apps corporativos, ou pacotes sem cask disponível).
 ## Uso
 
 ```bash
-chmod +x setup_new.sh
-./setup_new.sh
+chmod +x setup.sh
+./setup.sh
 ```
 
 Para cada item, responda `s` para instalar ou Enter/qualquer outra tecla para
@@ -52,7 +52,7 @@ A lista completa está no próprio script, organizada em seções.
 
 ```
 .
-├── setup_new.sh   # script de instalação
+├── setup.sh   # script de instalação
 ├── .gitconfig      # configuração padrão do Git (a revisar)
 ├── .zshrc          # configuração do shell (a revisar)
 └── vscode.settings.json  # configurações do VS Code (a revisar)
@@ -72,7 +72,7 @@ interferir no Ruby do sistema. Ver detalhes em [CONTEXT.md](CONTEXT.md).
 ## Personalizando
 
 Para adaptar a lista de apps às suas necessidades, edite as seções dentro de
-`setup_new.sh` — cada item usa uma das funções `run_brew`, `run_cask` ou
+`setup.sh` — cada item usa uma das funções `run_brew`, `run_cask` ou
 `add_manual`, então é direto adicionar, remover ou comentar linhas.
 
 ## Licença
