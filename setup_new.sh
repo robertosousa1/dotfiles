@@ -32,16 +32,35 @@ is_cmd()               { command -v "$1" &>/dev/null; }
 is_vscode_ext()        { code --list-extensions 2>/dev/null | grep -qix "$1"; }
 is_npm_pkg()           { npm list -g --depth=0 2>/dev/null | grep -q "$1"; }
 
+_PROGRESS_CURRENT=0
+_PROGRESS_TOTAL=0
+
+_draw_progress() {
+  local current="$1" total="$2"
+  local bar_width=20
+  local filled=$(( bar_width * current / total ))
+  local empty=$(( bar_width - filled ))
+  local bar=""
+  for ((i=0; i<filled; i++)); do bar+="█"; done
+  for ((i=0; i<empty; i++));  do bar+="░"; done
+  gum style --foreground 212 "  ${bar}  ${current}/${total}"
+}
+
+_INSTALL_LOG=/tmp/mac_setup_install.log
+
 _run_install() {
   local name="$1"
   shift
-  if gum spin --spinner dot --title "Installing $name..." -- "$@"; then
+  _draw_progress "$_PROGRESS_CURRENT" "$_PROGRESS_TOTAL"
+  gum style --foreground 240 "  ⠸ Installing $name..."
+  if "$@" >> "$_INSTALL_LOG" 2>&1; then
     gum style --foreground 46  "  ✅ $name installed"
     INSTALLED_ITEMS+=("$name")
   else
-    gum style --foreground 196 "  ❌ $name failed"
+    gum style --foreground 196 "  ❌ $name failed (see $_INSTALL_LOG)"
     FAILED_ITEMS+=("$name")
   fi
+  _PROGRESS_CURRENT=$(( _PROGRESS_CURRENT + 1 ))
 }
 
 do_install_cask() {
@@ -266,6 +285,9 @@ show_category() {
   [ -z "$selected" ] && return
 
   echo ""
+  _PROGRESS_CURRENT=0
+  _PROGRESS_TOTAL=$(echo "$selected" | wc -l | tr -d ' ')
+
   while IFS= read -r sel; do
     for entry in "${available_entries[@]}"; do
       IFS='|' read -r name type id <<< "$entry"
@@ -410,10 +432,18 @@ show_npm() {
   done <<< "$selected"
 
   echo ""
-  gum spin --spinner dot --title "Installing npm packages..." -- \
-    npm i -g "${to_install[@]}" \
-    && INSTALLED_ITEMS+=("npm: ${to_install[*]}") \
-    || FAILED_ITEMS+=("npm packages")
+  _PROGRESS_CURRENT=0
+  _PROGRESS_TOTAL=${#to_install[@]}
+  _draw_progress "$_PROGRESS_CURRENT" "$_PROGRESS_TOTAL"
+  gum style --foreground 240 "  ⠸ Installing npm packages..."
+  if npm i -g "${to_install[@]}" >> "$_INSTALL_LOG" 2>&1; then
+    gum style --foreground 46 "  ✅ npm packages installed"
+    INSTALLED_ITEMS+=("npm: ${to_install[*]}")
+  else
+    gum style --foreground 196 "  ❌ npm packages failed (see $_INSTALL_LOG)"
+    FAILED_ITEMS+=("npm packages")
+  fi
+  _PROGRESS_CURRENT=${#to_install[@]}
 
   echo ""
   gum style --foreground 212 "Done. Press any key to return to the menu."
@@ -491,10 +521,20 @@ show_vscode() {
   [ -z "$selected" ] && return
 
   echo ""
+  _PROGRESS_CURRENT=0
+  _PROGRESS_TOTAL=$(echo "$selected" | wc -l | tr -d ' ')
+
   while IFS= read -r ext; do
-    gum spin --spinner dot --title "VS Code: $ext..." -- code --install-extension "$ext" \
-      && INSTALLED_ITEMS+=("vscode: $ext") \
-      || FAILED_ITEMS+=("vscode: $ext")
+    _draw_progress "$_PROGRESS_CURRENT" "$_PROGRESS_TOTAL"
+    gum style --foreground 240 "  ⠸ Installing $ext..."
+    if code --install-extension "$ext" >> "$_INSTALL_LOG" 2>&1; then
+      gum style --foreground 46  "  ✅ $ext installed"
+      INSTALLED_ITEMS+=("vscode: $ext")
+    else
+      gum style --foreground 196 "  ❌ $ext failed"
+      FAILED_ITEMS+=("vscode: $ext")
+    fi
+    _PROGRESS_CURRENT=$(( _PROGRESS_CURRENT + 1 ))
   done <<< "$selected"
 
   echo ""
