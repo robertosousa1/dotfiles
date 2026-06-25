@@ -1,32 +1,55 @@
 {
-    "window.zoomLevel": 0,
-    "workbench.startupEditor": "newUntitledFile",
-    "workbench.colorTheme": "Dracula",
-    "workbench.iconTheme": "material-icon-theme",
-    "editor.fontFamily": "Fira Code",
-    "editor.fontLigatures": true,
-    "editor.fontSize": 12,
-    "editor.lineHeight": 0, 
-    "editor.rulers": [80, 120],
-    "editor.renderLineHighlight": "gutter",
-    "editor.tabSize": 2,
-    "terminal.integrated.fontSize": 12,
-    "terminal.integrated.shell.osx": "/bin/zsh",    
-    "emmet.includeLanguages": {
-      "javascript": "javascriptreact"
-    },
-    "emmet.syntaxProfiles": {
-      "javascript": "jsx"
-    },
-    "javascript.updateImportsOnFileMove.enabled": "never",
-    "editor.parameterHints.enabled": false,
-    "breadcrumbs.enabled": true,
-    "javascript.suggest.autoImports": false,
-    "liveServer.settings.CustomBrowser": "chrome",
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
-    },
-    "files.associations": {
-      "*.html": "html"
-    },
-  }
+  "window.zoomLevel": 0,
+  "workbench.startupEditor": "newUntitledFile",
+  "workbench.colorTheme": "Dracula",
+  "workbench.iconTheme": "material-icon-theme",
+  "editor.fontFamily": "Fira Code",
+  "editor.fontLigatures": true,
+  "editor.fontSize": 12,
+  "editor.lineHeight": 0,
+  "editor.rulers": [80, 120],
+  "editor.renderLineHighlight": "gutter",
+  "editor.tabSize": 2,
+  "editor.parameterHints.enabled": false,
+  "editor.minimap.enabled": false,
+  "editor.suggestSelection": "first",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "terminal.integrated.fontSize": 12,
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "breadcrumbs.enabled": true,
+  "js/ts.suggest.autoImports": true,
+  "js/ts.updateImportsOnFileMove.enabled": "always",
+  "js/ts.tsserver.log": "off",
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  "emmet.syntaxProfiles": {
+    "javascript": "jsx"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "[prisma]": {
+    "editor.formatOnSave": true
+  },
+  "files.associations": {
+    "*.html": "html",
+    ".env.*": "dotenv",
+    ".prettierrc": "json",
+    "*.css": "postcss"
+  },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "package.json": ".eslint*, eslint.config.*, prettier*, tsconfig*, vite*, pnpm-*, bun.lockb, nest*, package-lock*",
+    "tailwind.config.*": "tailwind.config*, postcss.config*",
+    ".env.local": ".env*",
+    ".env": ".env*"
+  },
+  "explorer.compactFolders": false,
+  "liveServer.settings.CustomBrowser": "chrome"
+}
