@@ -239,6 +239,8 @@ app_is_installed() {
         font-fira-code) is_cask_installed "font-fira-code" ;;
         cocoapods)    is_formula_installed "cocoapods" ;;
         omz)          [ -d "$HOME/.oh-my-zsh" ] ;;
+        sdkman)       [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] ;;
+        jdk-rn)       [ -d "$HOME/.sdkman/candidates/java/17.0.19-zulu" ] ;;
       esac
       ;;
   esac
@@ -267,6 +269,11 @@ install_app() {
           do_install_cask "$name" "font-fira-code" ;;
         cocoapods)
           do_install_brew "$name" "cocoapods" ;;
+        sdkman)
+          do_install_cmd "$name" "brew install bash &>/dev/null; curl -s 'https://get.sdkman.io' | \$(brew --prefix bash)/bin/bash" ;;
+        jdk-rn)
+          do_install_cmd "$name" \
+            "source \"\$HOME/.sdkman/bin/sdkman-init.sh\" && sdk install java 17.0.19-zulu && sdk default java 17.0.19-zulu" ;;
         omz)
           do_install_cmd "$name" \
             "sh -c \"\$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" '' --unattended && \
@@ -405,6 +412,25 @@ show_node() {
     echo ""
     gum style --foreground 214 "  ⚠️  nvm installed. Run 'Node.js LTS' from this menu to install Node,"
     gum style --foreground 214 "     or restart your terminal and run: nvm install --lts && nvm alias default \$(node --version)"
+  fi
+}
+
+# ─────────────────────────────────────────
+# Java
+# ─────────────────────────────────────────
+
+JAVA_ITEMS=(
+  "SDKMAN|special|sdkman"
+  "JDK 17.0.19-zulu (React Native)|special|jdk-rn"
+)
+
+show_java() {
+  _CATEGORY_ITEMS=("${JAVA_ITEMS[@]}")
+  show_category "Java Ecosystem"
+  if printf '%s\n' "${INSTALLED_ITEMS[@]}" | grep -q "^SDKMAN$"; then
+    echo ""
+    gum style --foreground 214 "  ⚠️  SDKMAN installed. Run 'JDK 17.0.19-zulu (React Native)' from this menu to install Java,"
+    gum style --foreground 214 "     or restart your terminal and run: sdk install java 17.0.19-zulu"
   fi
 }
 
@@ -643,6 +669,7 @@ while true; do
     "AI Assistants" \
     "Cloud" \
     "Node.js Ecosystem" \
+    "Java Ecosystem" \
     "Python Ecosystem" \
     "Global NPM Packages" \
     "VS Code Extensions" \
@@ -655,6 +682,7 @@ while true; do
     "AI Assistants")         show_ai ;;
     "Cloud")                 show_cloud ;;
     "Node.js Ecosystem")     show_node ;;
+    "Java Ecosystem")        show_java ;;
     "Python Ecosystem")      show_python ;;
     "Global NPM Packages")   show_npm ;;
     "VS Code Extensions")    show_vscode ;;

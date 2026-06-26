@@ -51,7 +51,7 @@ export PATH=$PATH:$ANDROID_HOME/tools/bin
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 
 # ---------------------
-# Histórico
+# Zsh command history
 # ---------------------
 HISTFILE=~/.zsh_history
 HISTSIZE=50000
@@ -62,26 +62,26 @@ setopt inc_append_history
 setopt hist_reduce_blanks
 
 # ---------------------
-# Comportamento do shell
+# Zsh shell options
 # ---------------------
 setopt auto_cd
 setopt extended_glob
 
 # ---------------------
-# Autocompletar
+# Zsh tab-completion
 # ---------------------
 autoload -Uz compinit && compinit
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 
 # ---------------------
-# Navegação por histórico com ↑ e ↓
+# Arrow keys ↑/↓ search zsh history filtered by what you've typed so far
 # ---------------------
 bindkey "^[[A" history-beginning-search-backward
 bindkey "^[[B" history-beginning-search-forward
 
 # ---------------------
-# Paste Handling
+# Paste handling — avoids zsh mangling special chars (URLs, etc.) when pasting into the terminal
 # ---------------------
 pasteinit() {
   OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
@@ -92,3 +92,7 @@ pastefinish() {
 }
 zstyle :bracketed-paste-magic paste-init pasteinit
 zstyle :bracketed-paste-magic paste-finish pastefinish
+
+# ---------------------
+# SDKMAN (must stay at the end of the file)
+# ---------------------
