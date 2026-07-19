@@ -49,7 +49,7 @@ resumo:
 | IA / Assistentes | Claude, ChatGPT |
 | Editores / IDEs | VS Code, Android Studio, DataGrip |
 | Ferramentas de dev | Docker, Postman, Insomnia, MongoDB Compass, DevToys |
-| CLIs de cloud/infra | AWS CLI, Azure CLI, Terraform, Helm, kubectl, Argo CD |
+| CLIs de cloud/infra | AWS CLI, Azure CLI, Terraform, Helm, kubectl, Argo CD, Railway |
 | Linguagens / runtimes | nvm, yarn, pnpm, OpenJDK, CocoaPods |
 | Terminal | Git, GitHub CLI, Oh My Zsh + Spaceship |
 | VS Code | ESLint, Prettier, GitLens, Dracula, Snyk, etc. |

@@ -388,6 +388,7 @@ CLOUD_ITEMS=(
   "Terraform|brew|terraform"
   "Helm|brew|helm"
   "Argo CD CLI|brew|argocd"
+  "Railway CLI|brew|railway"
 )
 
 show_cloud() {
