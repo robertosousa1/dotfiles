@@ -45,6 +45,7 @@ is_cask_installed() {
     obsidian)           is_app_installed "Obsidian" ;;
     claude)             is_app_installed "Claude" ;;
     chatgpt)            is_app_installed "ChatGPT" ;;
+    google-gemini)      is_app_installed "Gemini" ;;
     perplexity)         is_app_installed "Perplexity" ;;
     visual-studio-code) is_app_installed "Visual Studio Code" ;;
     android-studio)     is_app_installed "Android Studio" ;;
@@ -399,6 +400,7 @@ show_cloud() {
 AI_ITEMS=(
   "Claude|cask|claude"
   "ChatGPT|cask|chatgpt"
+  "Gemini|cask|google-gemini"
 )
 
 show_ai() {
@@ -456,6 +458,7 @@ NPM_ITEMS=(
   "yarn"
   "pnpm"
   "@anthropic-ai/claude-code"
+  "@google/gemini-cli"
   "@fission-ai/openspec"
   "autocannon"
   "eas-cli"

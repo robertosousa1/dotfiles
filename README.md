@@ -46,7 +46,7 @@ resumo:
 | Navegadores | Chrome, Brave |
 | Comunicação | WhatsApp, Slack, Discord, Zoom, Teams |
 | Produtividade | Word, Excel, PowerPoint, Outlook, OneDrive, Notion, Obsidian |
-| IA / Assistentes | Claude, ChatGPT |
+| IA / Assistentes | Claude, ChatGPT, Gemini |
 | Editores / IDEs | VS Code, Android Studio, DataGrip |
 | Ferramentas de dev | Docker, Postman, Insomnia, MongoDB Compass, DevToys |
 | CLIs de cloud/infra | AWS CLI, Azure CLI, Terraform, Helm, kubectl, Argo CD, Railway |
