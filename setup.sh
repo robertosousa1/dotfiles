@@ -467,6 +467,7 @@ NPM_ITEMS=(
   "npm-check"
   "ntl"
   "serverless"
+  "vercel"
 )
 
 show_npm() {
