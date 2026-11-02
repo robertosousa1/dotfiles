@@ -50,6 +50,11 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
 
 # ---------------------
+# Maestro (mobile E2E tests)
+# ---------------------
+export PATH=$PATH:$HOME/.maestro/bin
+
+# ---------------------
 # Zsh command history
 # ---------------------
 HISTFILE=~/.zsh_history

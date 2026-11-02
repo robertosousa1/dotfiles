@@ -51,6 +51,7 @@ resumo:
 | Ferramentas de dev | Docker, Postman, Insomnia, MongoDB Compass, DevToys |
 | CLIs de cloud/infra | AWS CLI, Azure CLI, Terraform, Helm, kubectl, Argo CD, Railway |
 | Linguagens / runtimes | nvm, yarn, pnpm, OpenJDK, CocoaPods |
+| Testes mobile | Maestro (E2E para iOS/Android) |
 | Terminal | Git, GitHub CLI, Oh My Zsh + Spaceship |
 | VS Code | ESLint, Prettier, GitLens, Dracula, Snyk, etc. |
 
