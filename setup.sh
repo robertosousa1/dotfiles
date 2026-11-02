@@ -43,6 +43,7 @@ is_cask_installed() {
     onedrive)           is_app_installed "OneDrive" ;;
     notion)             is_app_installed "Notion" ;;
     obsidian)           is_app_installed "Obsidian" ;;
+    spotify)            is_app_installed "Spotify" ;;
     claude)             is_app_installed "Claude" ;;
     chatgpt)            is_app_installed "ChatGPT" ;;
     google-gemini)      is_app_installed "Gemini" ;;
@@ -202,6 +203,8 @@ APPS_ITEMS=(
   "OneDrive|cask|onedrive"
   "Notion|cask|notion"
   "Obsidian|cask|obsidian"
+  # Media
+  "Spotify|cask|spotify"
   # Editors & IDEs
   "Visual Studio Code|cask|visual-studio-code"
   "Android Studio|cask|android-studio"
