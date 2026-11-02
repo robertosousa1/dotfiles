@@ -64,6 +64,18 @@ nvm alias default $(node --version)
 
 `nvm alias default --lts` não é válido — `--lts` não é aceito pelo `nvm alias`.
 
+### Maestro
+
+Instalado pelo script oficial (`curl -fsSL https://get.maestro.mobile.dev | bash`),
+que coloca o binário em `~/.maestro/bin` e adiciona esse diretório ao `PATH`
+no `~/.zshrc`.
+
+- **Requisito:** o Maestro precisa de Java no `PATH`. O script carrega o
+  SDKMAN antes de instalar, então ele usa o JDK 17 do menu "Java Ecosystem".
+  Sem Java, a instalação falha e aparece no resumo final.
+- **Por que não Homebrew:** o instalador oficial usa o Java que já está no
+  sistema, o que mantém o Java gerenciado só pelo SDKMAN.
+
 ### GitHub Copilot
 
 A extensão `github.copilot` foi **depreciada**. A extensão atual é

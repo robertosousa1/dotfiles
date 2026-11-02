@@ -242,6 +242,7 @@ app_is_installed() {
         omz)          [ -d "$HOME/.oh-my-zsh" ] ;;
         sdkman)       [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] ;;
         jdk-rn)       [ -d "$HOME/.sdkman/candidates/java/17.0.19-zulu" ] ;;
+        maestro)      is_cmd maestro || [ -x "$HOME/.maestro/bin/maestro" ] ;;
       esac
       ;;
   esac
@@ -275,6 +276,9 @@ install_app() {
         jdk-rn)
           do_install_cmd "$name" \
             "source \"\$HOME/.sdkman/bin/sdkman-init.sh\" && sdk install java 17.0.19-zulu && sdk default java 17.0.19-zulu" ;;
+        maestro)
+          do_install_cmd "$name" \
+            "[ -s \"\$HOME/.sdkman/bin/sdkman-init.sh\" ] && source \"\$HOME/.sdkman/bin/sdkman-init.sh\"; curl -fsSL 'https://get.maestro.mobile.dev' | bash" ;;
         omz)
           do_install_cmd "$name" \
             "sh -c \"\$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" '' --unattended && \
@@ -377,6 +381,7 @@ NODE_ITEMS=(
   "Watchman|brew|watchman"
   "CocoaPods|brew|cocoapods"
   "Reactotron|cask|reactotron"
+  "Maestro (mobile E2E tests)|special|maestro"
 )
 
 # ─────────────────────────────────────────
