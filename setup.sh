@@ -170,7 +170,7 @@ _install_notes() {
   for entry in "$@"; do
     IFS='|' read -r name type id <<< "$entry"
     case "$id" in
-      android-studio|docker|microsoft-word|microsoft-excel|microsoft-powerpoint|microsoft-outlook|microsoft-teams|maestro)
+      android-studio|docker|docker-desktop|microsoft-word|microsoft-excel|microsoft-powerpoint|microsoft-outlook|microsoft-teams|maestro)
         echo "$name — large download, can take several minutes" ;;
     esac
     case "$id" in
