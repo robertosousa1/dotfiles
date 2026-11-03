@@ -16,6 +16,7 @@ MANUAL_ITEMS=(
   "Friendly Streaming Browser — App Store"
   "Waterllama — App Store"
   "Perplexity — no cask available, download from https://perplexity.ai"
+  "DevDocs — Homebrew cask disabled (fails Gatekeeper); use https://devdocs.io or download from https://github.com/dteoh/devdocs-macos/releases"
   "GitHub Copilot (VS Code) — built-in since VS Code 1.99+; sign in via Accounts menu (bottom-left) with your GitHub account"
   "Zinit / zsh plugins — install manually as preferred"
 )
@@ -51,13 +52,12 @@ is_cask_installed() {
     visual-studio-code) is_app_installed "Visual Studio Code" ;;
     android-studio)     is_app_installed "Android Studio" ;;
     datagrip)           is_app_installed "DataGrip" ;;
-    docker)             is_app_installed "Docker" ;;
+    docker-desktop)     is_app_installed "Docker" ;;
     postman)            is_app_installed "Postman" ;;
     insomnia)           is_app_installed "Insomnia" ;;
     mongodb-compass)    is_app_installed "MongoDB Compass" ;;
     mysqlworkbench)     is_app_installed "MySQLWorkbench" ;;
     devtoys)            is_app_installed "DevToys" ;;
-    devdocs)            is_app_installed "DevDocs" ;;
     drawio)             is_app_installed "draw.io" ;;
     responsively)       is_app_installed "Responsively" ;;
     obs)                is_app_installed "OBS" ;;
@@ -210,13 +210,12 @@ APPS_ITEMS=(
   "Android Studio|cask|android-studio"
   "DataGrip|cask|datagrip"
   # Dev Tools
-  "Docker Desktop|cask|docker"
+  "Docker Desktop|cask|docker-desktop"
   "Postman|cask|postman"
   "Insomnia|cask|insomnia"
   "MongoDB Compass|cask|mongodb-compass"
   "MySQL Workbench|cask|mysqlworkbench"
   "DevToys|cask|devtoys"
-  "DevDocs|cask|devdocs"
   "draw.io|cask|drawio"
   "ResponsivelyApp|cask|responsively"
   "OBS|cask|obs"
