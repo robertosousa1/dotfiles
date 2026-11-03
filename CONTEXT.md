@@ -121,5 +121,6 @@ e compartilhado sem expor dados pessoais.
 | TestFlight / Transporter | Exclusivos App Store |
 | Waterllama / Friendly Streaming Browser | App Store ou sem cask |
 | Perplexity | Sem cask disponível |
+| DevDocs | Cask desativado no Homebrew (falha no Gatekeeper) |
 | GitHub Copilot | Built-in no VS Code 1.99+, requer login |
 | Zinit + plugins zsh | Instalação manual por preferência |

@@ -68,6 +68,9 @@ pendências:
 - **TestFlight / Transporter** — exclusivos da App Store
 - **Waterllama / Friendly Streaming Browser** — App Store ou sem cask
 - **Perplexity** — sem cask disponível; baixar em [perplexity.ai](https://perplexity.ai)
+- **DevDocs** — cask desativado no Homebrew (falha no Gatekeeper); usar
+  [devdocs.io](https://devdocs.io) ou baixar em
+  [dteoh/devdocs-macos](https://github.com/dteoh/devdocs-macos/releases)
 - **GitHub Copilot** — built-in no VS Code 1.99+; basta fazer login com sua
   conta GitHub pelo menu de contas (canto inferior esquerdo do VS Code)
 - **Zinit e plugins zsh** — instalação manual conforme preferência
