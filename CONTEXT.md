@@ -32,6 +32,28 @@ automaticamente se ausente, mas o `gum` precisa estar disponível antes de
 rodar o script — ou o script tenta instalá-lo via `brew install gum` na
 inicialização.
 
+### Progresso e avisos durante a instalação
+
+Cada instalação roda em segundo plano, com a saída gravada em
+`/tmp/mac_setup_install.log`. Enquanto isso, o script mostra um indicador
+animado, o tempo decorrido e a última linha que o instalador escreveu no log.
+Antes, a tela ficava parada em "Installing..." durante downloads longos
+(Maestro, apps da Microsoft, Android Studio), parecendo travada.
+
+- **Ctrl+C:** em scripts, processos em segundo plano ignoram o Ctrl+C. Por
+  isso o script interrompe a instalação em andamento por conta própria antes
+  de sair.
+- **Senha do Mac:** os casks que usam instalador `.pkg` (apps da Microsoft,
+  OneDrive, Zoom, AWS VPN Client) e o AWS CLI pedem senha de administrador.
+  O pedido de senha no meio da instalação se misturaria com a linha de
+  progresso, então o script pede a senha uma vez antes (`sudo -v`) e a mantém
+  válida até o fim da categoria. A lista fica em `_needs_sudo` e foi levantada
+  com `brew info --cask --json=v2`, procurando artefatos `pkg`/`installer`.
+- **Avisos antes de instalar:** downloads grandes e pré-requisitos ausentes
+  (nvm para o Node, SDKMAN para o JDK, Java para o Maestro) aparecem numa lista
+  com confirmação. Um pré-requisito selecionado no mesmo lote não gera aviso,
+  porque é instalado antes.
+
 ### Homebrew como padrão
 
 Homebrew é preferido sobre Mac App Store sempre que existir cask equivalente

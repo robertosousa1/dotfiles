@@ -31,8 +31,16 @@ chmod +x setup.sh
 ```
 
 O script abre um menu com categorias. Em cada uma, você seleciona os itens que
-quer instalar (espaço para marcar, enter para confirmar). Ao final, exibe um
-resumo:
+quer instalar (espaço para marcar, enter para confirmar).
+
+Antes de instalar, o script avisa o que exige atenção: downloads grandes,
+pré-requisitos que faltam (como Java para o Maestro) e instaladores que pedem a
+senha do Mac. Nesse último caso, a senha é pedida uma única vez, logo no
+começo. Durante a instalação, cada item mostra um indicador animado, o tempo
+decorrido e a última linha de saída do instalador (por exemplo, o percentual
+do download), para ficar claro que nada travou.
+
+Ao final, exibe um resumo:
 
 - ✅ itens instalados com sucesso
 - ⏭️ itens pulados

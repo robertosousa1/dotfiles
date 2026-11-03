@@ -90,20 +90,139 @@ _draw_progress() {
 }
 
 _INSTALL_LOG=/tmp/mac_setup_install.log
+_SPINNER_FRAMES=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
+_ESC=$(printf '\033')
 
+# Last meaningful line of the install log written after byte offset $1,
+# so the user sees what the current installer is doing
+_last_log_line() {
+  tail -c +"$(( $1 + 1 ))" "$_INSTALL_LOG" 2>/dev/null \
+    | tail -c 4000 \
+    | tr '\r' '\n' \
+    | sed -E "s/${_ESC}\[[0-9;]*[a-zA-Z]//g" \
+    | grep -v -e '^[[:space:]]*$' \
+    | tail -1 \
+    | sed -E 's/^[#=O -]*([0-9]+(\.[0-9]+)?%)[[:space:]]*$/Downloading... \1/; s/^[#=O -]+$/Downloading.../'
+}
+
+# Runs the install in the background and shows a spinner, the elapsed time and the
+# installer's latest output, so long downloads don't look frozen
 _run_install() {
   local name="$1"
   shift
   _draw_progress "$_PROGRESS_CURRENT" "$_PROGRESS_TOTAL"
-  gum style --foreground 240 "  ⠸ Installing $name..."
-  if "$@" >> "$_INSTALL_LOG" 2>&1; then
-    gum style --foreground 46  "  ✅ $name installed"
+  printf '\n===== %s =====\n' "$name" >> "$_INSTALL_LOG"
+  local offset
+  offset=$(wc -c < "$_INSTALL_LOG" | tr -d ' ')
+
+  "$@" >> "$_INSTALL_LOG" 2>&1 &
+  local pid=$!
+  # Background jobs ignore ctrl+c in scripts, so stop the install ourselves
+  trap 'pkill -TERM -P "$pid" 2>/dev/null; kill "$pid" 2>/dev/null; _sudo_stop; printf "\r%s[K\n" "$_ESC"; exit 130' INT
+
+  local start=$SECONDS frame=0 cols elapsed status line
+  cols=$(tput cols 2>/dev/null || echo 80)
+  while kill -0 "$pid" 2>/dev/null; do
+    elapsed=$(( SECONDS - start ))
+    status=$(_last_log_line "$offset")
+    line=$(printf '  %s Installing %s... %d:%02d  %s' \
+      "${_SPINNER_FRAMES[frame % ${#_SPINNER_FRAMES[@]}]}" "$name" $(( elapsed / 60 )) $(( elapsed % 60 )) "$status")
+    printf '\r%s[K%s[38;5;240m%s%s[0m' "$_ESC" "$_ESC" "${line:0:$(( cols - 1 ))}" "$_ESC"
+    frame=$(( frame + 1 ))
+    sleep 0.2
+  done
+  printf '\r%s[K' "$_ESC"
+
+  elapsed=$(( SECONDS - start ))
+  if wait "$pid"; then
+    gum style --foreground 46  "  ✅ $name installed in $(printf '%d:%02d' $(( elapsed / 60 )) $(( elapsed % 60 )))"
     INSTALLED_ITEMS+=("$name")
   else
     gum style --foreground 196 "  ❌ $name failed (see $_INSTALL_LOG)"
     FAILED_ITEMS+=("$name")
   fi
+  trap - INT
   _PROGRESS_CURRENT=$(( _PROGRESS_CURRENT + 1 ))
+}
+
+# ─────────────────────────────────────────
+# Pre-install notes
+# ─────────────────────────────────────────
+
+# Installers that run a .pkg (or sudo) and stop to ask for the Mac password
+_needs_sudo() {
+  case "$1" in
+    aws|aws-vpn-client|microsoft-word|microsoft-excel|microsoft-powerpoint|microsoft-outlook|microsoft-teams|onedrive|zoom) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+_has_java() { /usr/libexec/java_home &>/dev/null || [ -e "$HOME/.sdkman/candidates/java/current" ]; }
+
+# Prints one note per line for the selected entries ("name|type|id")
+_install_notes() {
+  local entry name type id ids=" "
+  for entry in "$@"; do
+    IFS='|' read -r name type id <<< "$entry"
+    ids+="$id "
+  done
+
+  for entry in "$@"; do
+    IFS='|' read -r name type id <<< "$entry"
+    case "$id" in
+      android-studio|docker|microsoft-word|microsoft-excel|microsoft-powerpoint|microsoft-outlook|microsoft-teams|maestro)
+        echo "$name — large download, can take several minutes" ;;
+    esac
+    case "$id" in
+      maestro)
+        _has_java || echo "$name — needs Java: install 'JDK 17.0.19-zulu (React Native)' in Java Ecosystem first" ;;
+      node-lts)
+        [ -s "$HOME/.nvm/nvm.sh" ] || [[ "$ids" == *" nvm "* ]] || echo "$name — needs nvm: select nvm too" ;;
+      jdk-rn)
+        [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ] || [[ "$ids" == *" sdkman "* ]] || echo "$name — needs SDKMAN: select SDKMAN too" ;;
+    esac
+    _needs_sudo "$id" && echo "$name — asks for your Mac password (admin installer)"
+  done
+}
+
+_SUDO_KEEPALIVE_PID=""
+
+# Asks for the password once and keeps sudo alive, so installers don't stop mid-progress
+_sudo_start() {
+  sudo -v || return 1
+  ( while kill -0 "$$" 2>/dev/null; do sudo -n true 2>/dev/null; sleep 50; done ) &
+  _SUDO_KEEPALIVE_PID=$!
+}
+
+_sudo_stop() {
+  [ -n "$_SUDO_KEEPALIVE_PID" ] && kill "$_SUDO_KEEPALIVE_PID" 2>/dev/null
+  _SUDO_KEEPALIVE_PID=""
+}
+
+# Shows the notes for the selected entries and asks to continue; returns 1 to cancel
+_confirm_install() {
+  local notes entry name type id needs_sudo=false
+  notes=$(_install_notes "$@")
+  for entry in "$@"; do
+    IFS='|' read -r name type id <<< "$entry"
+    _needs_sudo "$id" && needs_sudo=true
+  done
+
+  if [ -n "$notes" ]; then
+    echo ""
+    gum style --foreground 214 "Before installing:"
+    while IFS= read -r note; do
+      echo "  ⚠️  $note"
+    done <<< "$notes"
+    echo ""
+    gum confirm "Continue?" || return 1
+  fi
+
+  if $needs_sudo; then
+    echo ""
+    gum style --foreground 240 "Enter your Mac password once so the installers don't stop to ask:"
+    _sudo_start || return 1
+  fi
 }
 
 do_install_cask() {
@@ -343,19 +462,28 @@ show_category() {
 
   [ -z "$selected" ] && return
 
-  echo ""
-  _PROGRESS_CURRENT=0
-  _PROGRESS_TOTAL=$(echo "$selected" | wc -l | tr -d ' ')
-
+  local selected_entries=()
   while IFS= read -r sel; do
     for entry in "${available_entries[@]}"; do
       IFS='|' read -r name type id <<< "$entry"
       if [ "$name" = "$sel" ]; then
-        install_app "$name" "$type" "$id"
+        selected_entries+=("$entry")
         break
       fi
     done
   done <<< "$selected"
+
+  _confirm_install "${selected_entries[@]}" || return
+
+  echo ""
+  _PROGRESS_CURRENT=0
+  _PROGRESS_TOTAL=${#selected_entries[@]}
+
+  for entry in "${selected_entries[@]}"; do
+    IFS='|' read -r name type id <<< "$entry"
+    install_app "$name" "$type" "$id"
+  done
+  _sudo_stop
 
   _draw_progress "$_PROGRESS_TOTAL" "$_PROGRESS_TOTAL"
   echo ""
